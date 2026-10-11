@@ -1,0 +1,10 @@
+{
+  "description": "AI星球原生小程序，注册后填写自己的 AppID",
+  "appid": "touristappid",
+  "projectname": "AI-planet-wechat",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "setting": { "es6": true, "enhance": true, "minified": true, "urlCheck": true },
+  "packOptions": { "ignore": [], "include": [] }
+}

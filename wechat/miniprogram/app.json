@@ -1,0 +1,14 @@
+{
+  "pages": ["pages/home/index", "pages/mission/index", "pages/passport/index", "pages/teacher/index"],
+  "window": { "navigationBarTitleText": "AI星球", "navigationBarBackgroundColor": "#f6f5ff", "navigationBarTextStyle": "black", "backgroundColor": "#f6f5ff" },
+  "tabBar": {
+    "color": "#707a92", "selectedColor": "#7456b7", "backgroundColor": "#ffffff",
+    "list": [
+      {"pagePath":"pages/home/index","text":"探索地图"},
+      {"pagePath":"pages/passport/index","text":"训练师护照"},
+      {"pagePath":"pages/teacher/index","text":"教师中心"}
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

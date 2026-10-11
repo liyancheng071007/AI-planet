@@ -1,0 +1,6 @@
+{
+  "name": "ai-planet-wechat",
+  "private": true,
+  "type": "commonjs",
+  "scripts": { "test": "node --test test/*.test.cjs", "check": "node scripts/check.cjs" }
+}

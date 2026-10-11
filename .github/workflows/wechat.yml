@@ -1,0 +1,21 @@
+name: WeChat source checks
+on:
+  push:
+    branches: [codex/wechat-backend]
+  pull_request:
+    paths: ['wechat/**']
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: wechat
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm run check
+      - run: npm test
