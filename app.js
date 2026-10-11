@@ -64,7 +64,7 @@ function sync() {
   $('#progress').value = state.completed.length;
   $('#progress-label').textContent = `${state.completed.length} / 8`;
   $('#stage-list').innerHTML = stages.map((s,i) => `<button class="stage-link ${state.completed.includes(i)?'done':unlocked(state,i)?'current':'upcoming'}" data-stage="${i}" aria-label="${s.name}，${unlocked(state,i)?'进入关卡':'查看预告'}"><span>${state.completed.includes(i)?'✓':String(i+1).padStart(2,'0')}</span>${s.short}<small>${!unlocked(state,i)?'预告':'↗'}</small></button>`).join('');
-  $$('.nav-button').forEach(b => b.classList.toggle('active', b.dataset.view===view));
+  $$('.nav-button').forEach(b => { const current=b.dataset.view===view;b.classList.toggle('active',current);if(current)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current'); });
 }
 function stats() {
   const metrics=[
@@ -270,6 +270,7 @@ document.addEventListener('click', e=>{
     b.setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden)panel.scrollIntoView({block:'center'});
   }
   if(b.id==='generate') generate();
+  if(b.id==='back-to-top') { window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'}); $('#main').focus({preventScroll:true}); }
   if(b.id==='download-art') { const art=$('#generation svg'); if(art) { const url=URL.createObjectURL(new Blob([art.outerHTML],{type:'image/svg+xml;charset=utf-8'})); const a=document.createElement('a'); a.href=url; a.download='AI星球-提示词模拟作品.svg'; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000); } }
   if(b.dataset.epochs) { $('#epochs').value=b.dataset.epochs; updateTraining(); updateTaskDetails(); }
   if(b.id==='next-card') { cardFilter='all'; updateTaskDetails(); const target=$$('[data-card]').find(el=>el.closest('.needs-review'))||$$('[data-card]').find(el=>!el.value)||$('#reason'); target.focus(); target.scrollIntoView({block:'center',behavior:'instant'}); }
@@ -302,6 +303,8 @@ window.addEventListener('afterprint',()=>{
   printDetails.forEach(el=>el.open=false);
   printDetails=[];
 });
+$$('.nav-button').forEach((button,i)=>{button.innerHTML=`${glyph([7,0,5][i])}<span>${escape(button.textContent)}</span>`;});
+window.addEventListener('scroll',()=>{$('#back-to-top').hidden=window.scrollY<600;},{passive:true});
 render();
 if(!storageAvailable) toast('当前浏览器限制本地存储，离开前请导出护照。');
 

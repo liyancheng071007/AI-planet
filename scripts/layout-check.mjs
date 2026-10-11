@@ -42,6 +42,14 @@ try {
     await page.locator(`.nav-button[data-view="${screen}"]`).click();
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`${screen} overflow at 360`);
   }
+  const nav=await page.locator('.topbar nav').boundingBox();
+  assert.ok(nav.y>700 && nav.y+nav.height<=900);
+  assert.equal(await page.locator('.nav-button[aria-current="page"]').count(),1);
+  await page.evaluate(()=>window.scrollTo(0,1000));
+  await page.locator('#back-to-top').click();
+  assert.equal(await page.evaluate(()=>window.scrollY),0);
+  await page.locator('.nav-button[data-view="map"]').click();
+  assert.ok((await page.locator('.journey-node').first().boundingBox()).height>=44);
   assert.deepEqual(errors,[]);
   console.log('Layout QA passed at 360, 390, 768, 1024 and 1440px; illustrations, navigation and reduced-motion verified.');
 }finally{await browser.close();}
