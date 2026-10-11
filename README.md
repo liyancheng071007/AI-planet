@@ -8,6 +8,12 @@
 
 ## 快速开始
 
+**在线试玩：[AI星球](https://liyancheng071007.github.io/AI-planet/)**。分享此链接即可在手机或电脑浏览器玩，无需安装 Node.js，也不依赖开发者电脑开机。
+
+线上与本地试玩的浏览器存档各自独立，不会自动迁移。
+
+### 本地运行
+
 需要 **Node.js 20 或更新版本**，无需安装依赖、无需 API 密钥。
 
 ```bash
@@ -85,6 +91,10 @@ npm start
 7. 外部 AI 工具体验属于可选课堂扩展，由教师确认适龄条件、账号与使用规则。
 
 ## 技术与目录
+
+### GitHub Pages 部署
+
+`.github/workflows/pages.yml` 在推送到 `main` 后运行语法与逻辑检查，成功后仅发布游戏入口、脚本、样式和图标。也可在 GitHub Actions 中手动运行 `Deploy GitHub Pages`。仓库 Settings → Pages 的发布来源设为 GitHub Actions。
 
 原生 HTML / CSS / JavaScript，无运行时第三方依赖。星球、机器人与八个区域采用原创 SVG 插画，不依赖远程素材。
 
