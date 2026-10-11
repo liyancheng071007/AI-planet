@@ -30,6 +30,8 @@ npm start
 - **课堂支持**：45 分钟、90 分钟、4 课时节奏提示，教师中心、角色分工与合作复盘。
 - **无需账号**：进度仅保存在当前浏览器的 `localStorage`；支持手机、平板、电脑及键盘操作。
 - **操作反馈**：关卡内显示余额不足与漏填提示；关闭弹窗后再次打开保留本次页面会话中的未提交内容（刷新会清空草稿）。手机端可直接切换课堂节奏。
+- **精细实验反馈**：数据处理计数、字数提示、提示词要素清单、训练曲线与快捷实验；模拟作品可下载为 SVG。
+- **探索档案**：护照证件、环形进度、可点击徽章、结构化回答与星际事件时间线；教师中心提供课堂步骤和节奏选择。
 
 ### 八个关卡
 
@@ -107,6 +109,8 @@ npm test        # Node.js 内置测试，无需安装测试框架
 CI 在 push 和 pull request 时运行检查。核心测试覆盖关卡锁定、重复奖励、资源消费、存档恢复、教学模拟和奖项条件。
 
 可选浏览器验证：安装本机 Microsoft Edge，并运行 `npm install --no-save --package-lock=false playwright`；保持 `npm start` 运行，在另一个终端执行 `node scripts/browser-check.mjs`。该脚本走完八关，并验证全部关卡预览、轨迹导航、筛选、返回首页、模式切换、任务草稿、输入错误、奖项、导出、打印调用、重置确认/取消、存档、移动布局和辅助解题。Playwright 仅用于可选 QA，不是游戏运行依赖。
+
+专项检查：`node scripts/polish-check.mjs`（实验与奖励）、`node scripts/layout-check.mjs`（五种屏幕宽度与护照/教师中心）、`node scripts/accessibility-check.mjs`（键盘、焦点与手机操作）。连续改进记录见 [精修日志](docs/POLISH_LOG.md)。
 
 ## 部署
 

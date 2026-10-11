@@ -261,6 +261,15 @@ $('#mission-dialog').addEventListener('close', () => {
     target?.focus({preventScroll:true});
   });
 });
+let printDetails=[];
+window.addEventListener('beforeprint',()=>{
+  printDetails=$$('details',$('#main')).filter(el=>!el.open);
+  printDetails.forEach(el=>el.open=true);
+});
+window.addEventListener('afterprint',()=>{
+  printDetails.forEach(el=>el.open=false);
+  printDetails=[];
+});
 render();
 if(!storageAvailable) toast('当前浏览器限制本地存储，离开前请导出护照。');
 
