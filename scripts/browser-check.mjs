@@ -73,9 +73,12 @@ try {
   await page.locator('#prompt').fill('画一只戴宇航员头盔的橘猫，卡通风格，火星背景。');
   await page.locator('#generate').click();
   await page.locator('#prompt').fill('画一只戴宇航员头盔的橘猫，卡通风格，火星背景，探索岩石。');
+  assert.equal(await page.locator('#download-art').isDisabled(),true);
+  assert.ok(await page.locator('.art-version').isVisible());
   await page.locator('button[type="submit"]').click();
   assert.ok((await page.locator('#feedback').textContent()).includes('重新生成'));
   await page.locator('#generate').click();
+  assert.equal(await page.locator('#download-art').isDisabled(),false);
   await page.locator('button[type="submit"]').click();
   await page.locator('#next-stage').click();
   for(const [i,v] of ['0','1','1'].entries()) await page.locator(`#claim-${i}`).selectOption(v);

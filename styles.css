@@ -3120,3 +3120,7 @@ button:focus-visible { position:relative; z-index:2; }
  .award-checklist>span { font-size:9px; }
 }
 @media print { .certificate-panel { break-inside:avoid; background:#fff; } .certificate-actions { display:none; } }
+
+/* Final artwork state */
+.art-version { background:#fff1de; color:#aa8856; border:1px solid #eedbbb; padding:10px 13px; border-radius:8px; font-size:12px; }
+.art-version[hidden] { display:none; }
