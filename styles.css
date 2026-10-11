@@ -3026,3 +3026,21 @@ button:focus-visible { position:relative; z-index:2; }
   .task-context strong { font-size:11px; }
 }
 @media print { .skip-link { display:none!important; } }
+
+/* Round 7 — a readable data curation workspace */
+.animal-art { display:block; width:66px; height:66px; }
+.card-filter-bar { display:flex; gap:5px; border:1px solid #e1e8e9; background:#edf5f3; border-radius:9px; padding:4px; width:max-content; max-width:100%; }
+.card-filter-bar button { padding:9px 15px; min-height:38px; border-radius:6px; font-size:11px; color:#7a9e95; }
+.card-filter-bar button[aria-pressed=true] { background:#fff; box-shadow:0 2px 5px #648f8612; color:#487e70; }
+.data-card[hidden] { display:none; }
+.data-card.needs-review { border-color:#dba675; box-shadow:inset 0 3px 0 #dba675; background:#fff4e9; }
+.data-card.needs-review select { border-color:#dba675; }
+.data-card { position:relative; }
+.data-card.classified:after { content:"•"; position:absolute; right:7px; top:3px; color:#83bda9; font-size:18px; pointer-events:none; }
+.data-card.discarded:after { color:#b1bacb; }
+.data-card.needs-review:after { color:#cd9561; }
+@media(max-width:480px) {
+ .animal-art { width:54px; height:54px; }
+ .card-filter-bar { width:100%; }
+ .card-filter-bar button { flex:1; padding:8px 9px; min-height:44px; font-size:10px; }
+}

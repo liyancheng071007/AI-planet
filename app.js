@@ -1,6 +1,6 @@
 import { newState, restore, STORAGE_KEY, unlocked, complete, buyHint, buySkip, training, balance, award } from './engine.js';
 import { stages, cards, samples } from './content.js';
-import { scene, heroArt, glyph, promptArt } from './visuals.js';
+import { scene, heroArt, glyph, promptArt, animalArt } from './visuals.js';
 
 const $ = (q, root = document) => root.querySelector(q);
 const $$ = (q, root = document) => [...root.querySelectorAll(q)];
@@ -14,6 +14,7 @@ let toastTimer;
 let filter = 'all';
 let dialogTrigger = null;
 let dialogTriggerSelector = '';
+let cardFilter='all';
 const drafts = new Map();
 function toast(message) {
   $('#toast').classList.remove('show');
@@ -47,6 +48,9 @@ function updateTaskDetails() {
     $('#data-progress').value = filled;
     $('#next-card').textContent = filled===30 ? '填写剔除理由 ↓' : '定位未处理卡片 ↓';
     choices.forEach(el=>{el.closest('.data-card').classList.toggle('classified',!!el.value);el.closest('.data-card').classList.toggle('discarded',el.value==='剔除');});
+    choices.forEach(el=>el.closest('.data-card').hidden=cardFilter==='todo'?!!el.value:cardFilter==='kept'?(!el.value||el.value==='剔除'):cardFilter==='removed'?el.value!=='剔除':false);
+    $$('[data-card-filter]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.cardFilter===cardFilter)));
+    $('#card-filter-status').textContent=`显示 ${choices.filter(el=>!el.closest('.data-card').hidden).length} / 30 张卡片`;
   }
   if ($('#prompt-checklist')) {
     const p=$('#prompt').value;
@@ -110,7 +114,7 @@ function choice(id, options) {
   return `<select id="${id}" aria-label="${label}" required><option value="">请选择</option>${options.map((o,i)=>`<option value="${i}">${o}</option>`).join('')}</select>`;
 }
 function stageBody(id) {
-  if (id===0) return `<p>检查 30 张图标数据卡。每张卡选择正确类别，或标记为剔除；保留至少 20 张清晰且标签正确的数据。</p><div class="data-workbench"><div><small>处理进度</small><strong id="data-processed">0 / 30</strong></div><div><small>已保留</small><strong id="data-kept">0</strong></div><div><small>已剔除</small><strong id="data-discarded">0</strong></div><button type="button" class="text-button" id="next-card">定位未处理卡片 ↓</button><progress id="data-progress" max="30" value="0" aria-label="数据处理进度"></progress></div><p class="workbench-note">计数仅记录操作进度，正确性将在提交后核对。</p><div class="data-grid">${cards.map(c=>`<label class="data-card"><small>#${String(c.id+1).padStart(2,'0')} · 标签：${c.label}</small><span class="animal ${c.blurry?'blurred':''}" aria-label="${c.blurry?'模糊的': '清晰的'}${c.actual}图标">${c.icon}</span><small>${c.blurry?'图像模糊':'图像清晰'}</small><select data-card="${c.id}" aria-label="第 ${c.id+1} 张数据卡的处理方式"><option value="">未处理</option>${['猫','狗','其他','剔除'].map(t=>`<option>${t}</option>`).join('')}</select></label>`).join('')}</div>${field('剔除理由','reason','描述模糊数据与错标签会怎样影响模型。')}`;
+  if (id===0) return `<p>检查 30 张图标数据卡。每张卡选择正确类别，或标记为剔除；保留至少 20 张清晰且标签正确的数据。</p><div class="data-workbench"><div><small>处理进度</small><strong id="data-processed">0 / 30</strong></div><div><small>已保留</small><strong id="data-kept">0</strong></div><div><small>已剔除</small><strong id="data-discarded">0</strong></div><button type="button" class="text-button" id="next-card">定位未处理卡片 ↓</button><progress id="data-progress" max="30" value="0" aria-label="数据处理进度"></progress></div><p class="workbench-note">计数仅记录操作进度，正确性将在提交后核对。橙色边框表示提交后需要复查的卡片。</p><div class="card-filter-bar">${[['all','全部'],['todo','未处理'],['kept','已保留'],['removed','已剔除']].map(([key,text])=>`<button type="button" data-card-filter="${key}" aria-pressed="${key==='all'}">${text}</button>`).join('')}</div><p id="card-filter-status" class="workbench-note" role="status"></p><div class="data-grid">${cards.map(c=>`<label class="data-card"><small>#${String(c.id+1).padStart(2,'0')} · 标签：${c.label}</small><span role="img" class="animal ${c.blurry?'blurred':''}" aria-label="${c.blurry?'模糊的': '清晰的'}${c.actual}图标">${animalArt(c.actual,c.id)}</span><small>${c.blurry?'图像模糊':'图像清晰'}</small><select data-card="${c.id}" aria-label="第 ${c.id+1} 张数据卡的处理方式"><option value="">未处理</option>${['猫','狗','其他','剔除'].map(t=>`<option>${t}</option>`).join('')}</select></label>`).join('')}</div>${field('剔除理由','reason','描述模糊数据与错标签会怎样影响模型。')}`;
   if (id===1) return `<div class="notice">教学模拟 · 数值不来自真实模型训练</div><label class="input-label" for="epochs">训练轮数：<strong id="epoch-count">5</strong> 轮</label><input type="range" id="epochs" min="1" max="20" value="5"><div class="epoch-presets" aria-label="训练轮数快捷实验"><button type="button" data-epochs="3">试试 3 轮</button><button type="button" data-epochs="10">试试 10 轮</button><button type="button" data-epochs="20">试试 20 轮</button></div><div id="training-result"></div><p class="muted">试试 3、10、20 轮。训练越久，测试表现就一定越好吗？</p>${field('为什么测试准确率不是 100%？','reason','从样本差异、信息不足或模型能力解释。')}${choice('train-choice',['训练准确率高就能保证新题全对','新样本与训练数据有差异，模型也有局限'])}`;
   if (id===2) return `<div class="sample-list">${samples.map((s,i)=>`<div class="sample"><span>${s.icon}</span><div><strong>样本 ${i+1} · 真实类别：${s.actual}</strong><p>AI 预测：${s.predicted} · 置信度 ${s.confidence}%</p><meter class="confidence-meter" min="0" max="100" value="${s.confidence}" aria-label="模型置信度 ${s.confidence}%">${s.confidence}%</meter></div>${choice(`sample-${i}`,['预测正确','预测错误'])}</div>`).join('')}</div><label class="input-label" for="confidence">置信度等于正确率吗？</label>${choice('confidence',['等于，置信度 99% 就绝不会错','不等于，需要真实标签与多样本测试来评价'])}`;
   if (id===3) return `<div class="notice">教学模拟 · 初始训练集只有白猫。本关展示数据覆盖的影响，不代表真实模型必然答错。</div><div class="balance-grid">${['白猫','黑猫','花猫'].map((t,i)=>`<div class="balance-item"><span>${['🐈','🐈‍⬛','🐱'][i]}</span><label for="cat-${i}">${t}数据：<b id="cat-count-${i}">${i===0?18:0}</b> 张</label><input id="cat-${i}" type="range" min="0" max="20" value="${i===0?18:0}"><div class="meter"><i id="cat-bar-${i}"></i></div><small id="cat-accuracy-${i}"></small></div>`).join('')}</div><label class="input-label" for="fairness">修复后，还应该做什么？</label>${choice('fairness',['只检查总体准确率','分别测试各组表现，并持续检查代表性'])}`;
@@ -142,6 +146,7 @@ function openStage(id) {
   if ($('#mission-dialog').open) rememberDraft();
   $('#dialog-toast').hidden = true;
   const dialog = $('#mission-dialog');
+  cardFilter='all';
   dialog.className = `region-${id}`;
   if (!unlocked(state,id)) {
     active = id;
@@ -196,6 +201,7 @@ function assist(charge=true) {
   if (active===4) $('#prompt').value='一只戴宇航员头盔的橘猫，卡通风格，正在火星探索。';
   if (active===5) [0,1,1].forEach((x,i)=>$(`#claim-${i}`).value=String(x));
   if (active===6) $$('[name="ethics"]').forEach(el=>el.checked=[1,3,5].includes(Number(el.value)));
+  $$('.needs-review').forEach(el=>el.classList.remove('needs-review'));
   save(); sync(); updateTaskDetails();
 }
 function submit(event) {
@@ -217,6 +223,7 @@ function submit(event) {
     const picks=$$('[data-card]').map(e=>e.value); let clean=0, bad=0, correct=0;
     cards.forEach((c,i)=>{ if(c.clean&&picks[i]===c.actual) clean++; if(!c.clean&&picks[i]!=='剔除') bad++; if(picks[i]===(c.clean?c.actual:'剔除'))correct++; });
     ok=clean>=20&&bad===0&&correct>=28&&picks.every(Boolean)&&written('reason');
+    if (!ok) { cardFilter='all'; updateTaskDetails(); $$('[data-card]').forEach((el,i)=>el.closest('.data-card').classList.toggle('needs-review',picks[i]!== (cards[i].clean?cards[i].actual:'剔除'))); }
     answer={clean,正确处理:correct,剔除理由:val('reason')}; error=`已正确保留 ${clean} 张；尚有 ${bad} 张问题数据未剔除。至少正确处理 28 张，并写出剔除理由。`;
   }
   if (active===1) { const t=training(val('epochs')); ok=t.test>=80&&val('train-choice')==='1'&&written('reason'); answer={训练轮数:val('epochs'),测试准确率:t.test,解释:val('reason')}; error='需要测试准确率达到 80%，选对泛化解释，并写出不是 100% 的原因。'; }
@@ -232,6 +239,7 @@ function submit(event) {
 document.addEventListener('click', e=>{
   const v=e.target.closest('[data-view]'); if(v) { e.preventDefault(); view=v.dataset.view; render(); $('#main').focus({preventScroll:true}); window.scrollTo(0,0); }
   const f=e.target.closest('[data-filter]'); if(f) { filter=f.dataset.filter; render(); }
+  const cf=e.target.closest('[data-card-filter]'); if(cf) { cardFilter=cf.dataset.cardFilter; updateTaskDetails(); }
   const s=e.target.closest('[data-stage]'); if(s&&!s.disabled) openStage(Number(s.dataset.stage));
   const b=e.target.closest('button'); if(!b) return;
   if(b.id==='close-dialog') $('#mission-dialog').close();
@@ -241,7 +249,7 @@ document.addEventListener('click', e=>{
   if(b.id==='generate') generate();
   if(b.id==='download-art') { const art=$('#generation svg'); if(art) { const url=URL.createObjectURL(new Blob([art.outerHTML],{type:'image/svg+xml;charset=utf-8'})); const a=document.createElement('a'); a.href=url; a.download='AI星球-提示词模拟作品.svg'; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000); } }
   if(b.dataset.epochs) { $('#epochs').value=b.dataset.epochs; updateTraining(); updateTaskDetails(); }
-  if(b.id==='next-card') { const target=$$('[data-card]').find(el=>!el.value)||$('#reason'); target.focus(); target.scrollIntoView({block:'center',behavior:'instant'}); }
+  if(b.id==='next-card') { cardFilter='all'; updateTaskDetails(); const target=$$('[data-card]').find(el=>el.closest('.needs-review'))||$$('[data-card]').find(el=>!el.value)||$('#reason'); target.focus(); target.scrollIntoView({block:'center',behavior:'instant'}); }
   if(b.id==='save-team') { state.team=$('#team-name').value.trim()||'星际探索小队'; save(); render(); toast('小队代号已保存。'); }
   if(b.id==='export') { const blob=new Blob([JSON.stringify({...state,称号:award(state)},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a'); a.href=url; a.download='AI星球-训练师护照.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000); }
   if(b.id==='print'||b.hasAttribute('data-print')) window.print();
@@ -249,6 +257,7 @@ document.addEventListener('click', e=>{
 });
 document.addEventListener('input', e=>{ e.target.removeAttribute('aria-invalid'); if(e.target.id==='epochs') updateTraining(); if(/^cat-\d$/.test(e.target.id)) updateBalance(); if(e.target.closest('#mission-form')) updateTaskDetails(); });
 document.addEventListener('change', e=>{
+  if(e.target.matches('[data-card]')) e.target.closest('.data-card').classList.remove('needs-review');
   if(e.target.closest('#mission-form')) updateTaskDetails();
   if(['mode','map-mode','teacher-mode'].includes(e.target.id)) { state.mode=e.target.value; save(); render(); toast('探索节奏已更新。'); }
   if(e.target.classList.contains('collab')) { state.collaborationItems=$$('.collab').map(el=>el.checked); state.collaboration=state.collaborationItems.filter(Boolean).length; save(); const focused=$$('.collab').indexOf(e.target); renderPassport(); $$('.collab')[focused]?.focus(); }
