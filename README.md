@@ -22,12 +22,14 @@ npm start
 
 ## 游戏是什么样的？
 
-- **星球任务地图**：八个区域顺序解锁，收集芯片逐步恢复核心。
+- **彩色星球任务地图**：蓝紫太空主视觉、八张原创分区插画与可点击探索轨迹；可筛选全部、可挑战、已修复区域。
+- **关卡预览**：八个区域都能点击，未解锁区域展示任务、徽章和解锁条件，可一键前往当前任务；挑战仍按顺序解锁。
 - **八种互动任务**：清洗数据、调训练轮数、核对预测、平衡数据、写提示词、对照证据、制定公约、设计校园方案。
 - **训练师护照**：保存徽章、每关得分、作品与回答；支持 JSON 导出和浏览器打印。
 - **资源机制**：初始 5 枚算力币，可换提示与辅助解题；首次通关获得奖励与随机事件。
 - **课堂支持**：45 分钟、90 分钟、4 课时节奏提示，教师中心、角色分工与合作复盘。
 - **无需账号**：进度仅保存在当前浏览器的 `localStorage`；支持手机、平板、电脑及键盘操作。
+- **操作反馈**：关卡内显示余额不足与漏填提示；关闭弹窗后再次打开保留本次页面会话中的未提交内容（刷新会清空草稿）。手机端可直接切换课堂节奏。
 
 ### 八个关卡
 
@@ -81,7 +83,7 @@ npm start
 
 ## 技术与目录
 
-原生 HTML / CSS / JavaScript，无运行时第三方依赖。自绘 CSS 星球与本地 SVG，不依赖远程素材。
+原生 HTML / CSS / JavaScript，无运行时第三方依赖。星球、机器人与八个区域采用原创 SVG 插画，不依赖远程素材。
 
 ```text
 ├── index.html                # 入口与应用框架
@@ -89,6 +91,7 @@ npm start
 ├── app.js                    # 页面、关卡交互与输入校验
 ├── engine.js                 # 状态恢复、奖励、训练模拟与评价
 ├── content.js                # 八关内容、数据卡与测试样本
+├── visuals.js                # 星球、机器人与八个区域的原创 SVG
 ├── assets/planet.svg         # 原创站点图标
 ├── scripts/serve.mjs         # 仅允许访问应用资源的本地服务器
 ├── test/engine.test.js       # 核心逻辑回归测试
@@ -103,11 +106,11 @@ npm test        # Node.js 内置测试，无需安装测试框架
 
 CI 在 push 和 pull request 时运行检查。核心测试覆盖关卡锁定、重复奖励、资源消费、存档恢复、教学模拟和奖项条件。
 
-可选浏览器验证：安装本机 Microsoft Edge，并运行 `npm install --no-save --package-lock=false playwright`；保持 `npm start` 运行，在另一个终端执行 `node scripts/browser-check.mjs`。该脚本走完八关并验证输入错误、奖项、导出、存档、移动布局和辅助解题，同时更新文档截图。Playwright 仅用于可选 QA，不是游戏运行依赖。
+可选浏览器验证：安装本机 Microsoft Edge，并运行 `npm install --no-save --package-lock=false playwright`；保持 `npm start` 运行，在另一个终端执行 `node scripts/browser-check.mjs`。该脚本走完八关，并验证全部关卡预览、轨迹导航、筛选、返回首页、模式切换、任务草稿、输入错误、奖项、导出、打印调用、重置确认/取消、存档、移动布局和辅助解题。Playwright 仅用于可选 QA，不是游戏运行依赖。
 
 ## 部署
 
-这是静态网站。将 `index.html`、`styles.css`、`app.js`、`engine.js`、`content.js` 和 `assets/` 放在同一静态站点根目录即可。
+这是静态网站。将 `index.html`、`styles.css`、`app.js`、`engine.js`、`content.js`、`visuals.js` 和 `assets/` 放在同一静态站点根目录即可。
 
 **GitHub Pages**：仓库 Settings → Pages → Deploy from a branch → 选择 `main` 分支与 `/ (root)`。项目采用相对资源路径，支持仓库子路径部署。只有启用并完成 Pages 部署后才会有公开试玩地址；公开源代码仓库本身不等于网站已上线。
 

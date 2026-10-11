@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#101912">
+  <meta name="theme-color" content="#172348">
   <meta name="description" content="成为AI训练师，探索8个区域，在互动实验中理解数据、训练、推理与AI伦理。">
   <title>AI星球 · 智能核心修复计划</title>
   <link rel="icon" href="assets/planet.svg" type="image/svg+xml">
@@ -12,9 +12,9 @@
 <body>
   <a class="skip-link" href="#main">跳转到任务区域</a>
   <header class="topbar">
-    <a href="#" class="brand" aria-label="AI星球首页"><span class="brand-icon">✳</span> AI 星球 <span class="brand-sub">PLANET LAB</span></a>
+    <a href="#main" data-view="map" class="brand" aria-label="AI星球首页"><span class="brand-icon">✳</span> AI 星球 <span class="brand-sub">PLANET LAB</span></a>
     <nav aria-label="主导航"><button data-view="map" class="nav-button active">探索星球</button><button data-view="passport" class="nav-button">训练师护照</button><button data-view="teacher" class="nav-button">教师中心 ↗</button></nav>
-    <span class="local-tag"><i></i> 本地探索模式</span>
+    <button class="local-tag" data-view="passport"><i></i> 我的探索档案 <span>↗</span></button>
   </header>
   <div class="app-shell">
     <aside class="sidebar">
@@ -31,7 +31,7 @@
     <main id="main" tabindex="-1"></main>
   </div>
   <div id="toast" role="status" aria-live="polite"></div>
-  <dialog id="mission-dialog" aria-labelledby="dialog-title"><div id="dialog-content"></div></dialog>
+  <dialog id="mission-dialog" aria-labelledby="dialog-title"><div id="dialog-content"></div><div id="dialog-toast" role="status" aria-live="polite" hidden></div></dialog>
   <footer>AI PLANET · 为好奇心而造 <span>不收集个人信息 · 无需账号 · 教学模拟</span></footer>
   <noscript>请启用 JavaScript 以体验互动关卡。教师说明可在项目 docs/TEACHER_GUIDE.md 中查看。</noscript>
   <script type="module" src="app.js"></script>

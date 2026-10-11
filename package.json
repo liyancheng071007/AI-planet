@@ -8,7 +8,7 @@
     "dev": "node scripts/serve.mjs",
     "start": "node scripts/serve.mjs",
     "test": "node --test",
-    "check": "node --check app.js && node --check engine.js && node --check content.js"
+    "check": "node --check app.js && node --check engine.js && node --check content.js && node --check visuals.js"
   },
   "engines": { "node": ">=20" }
 }

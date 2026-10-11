@@ -12,8 +12,42 @@ try {
   await page.locator('.hero').waitFor();
   await mkdir('docs',{recursive:true});
   await page.screenshot({path:'docs/screenshot.png',fullPage:true});
-  assert.equal(await page.locator('.level-card:disabled').count(),7);
+  assert.equal(await page.locator('.level-card:disabled').count(),0);
+  // Every locked tile opens a useful preview without bypassing progression.
+  for (let i=1;i<8;i++) {
+    await page.locator('.level-card').nth(i).click();
+    assert.ok((await page.locator('#dialog-content').textContent()).includes('先完成'));
+    assert.equal(await page.locator('#mission-form').count(),0);
+    await page.locator('#close-dialog').click();
+  }
+  await page.locator('.stage-link').nth(3).click();
+  await page.locator('#dialog-content [data-stage="0"]').click();
+  assert.equal(await page.locator('#mission-form').count(),1);
+  await page.keyboard.press('Escape');
+  await page.locator('.journey-node').nth(4).click();
+  await page.locator('#close-dialog').click();
+  await page.locator('[data-filter="done"]').click();
+  assert.equal(await page.locator('.empty-state').count(),1);
+  await page.locator('.empty-state button').click();
+  await page.locator('[data-filter="ready"]').click();
+  assert.equal(await page.locator('.level-card').count(),1);
+  await page.locator('[data-filter="all"]').click();
+  await page.locator('.nav-button[data-view="passport"]').click();
+  await page.locator('#team-name').fill('星光探险队');
+  await page.locator('#save-team').click();
+  await page.locator('.brand').click();
+  assert.ok((await page.locator('.page-heading').textContent()).includes('星光探险队'));
+  await page.locator('#map-mode').selectOption('45');
+  assert.equal(await page.locator('#mode').inputValue(),'45');
+  await page.locator('#mode').selectOption('90');
+  assert.equal(await page.locator('#map-mode').inputValue(),'90');
   await page.locator('.level-card').first().click();
+  await page.locator('button[type="submit"]').click();
+  assert.ok(await page.locator('#dialog-toast').isVisible());
+  await page.locator('#reason').fill('关闭任务后仍应保留这一段尚未提交的想法。');
+  await page.locator('#close-dialog').click();
+  await page.locator('.level-card').first().click();
+  assert.equal(await page.locator('#reason').inputValue(),'关闭任务后仍应保留这一段尚未提交的想法。');
   await page.locator('[data-card="0"]').selectOption('猫');
   await page.locator('#reason').fill('模糊和错误标签会影响模型学到的规律。');
   await page.locator('button[type="submit"]').click();
@@ -75,10 +109,16 @@ try {
   assert.equal(await page.locator('#progress-label').textContent(),'8 / 8');
   await page.locator('.nav-button[data-view="teacher"]').click();
   assert.ok((await page.locator('main').textContent()).includes('课堂节奏'));
+  await page.evaluate(()=>{ window.__printed=0; window.print=()=>window.__printed++; });
+  await page.locator('#print').click();
+  assert.equal(await page.evaluate(()=>window.__printed),1);
   await page.setViewportSize({width:390,height:844});
   await page.locator('.nav-button[data-view="map"]').click();
+  await page.locator('#map-mode').selectOption('project');
+  assert.equal(await page.locator('#map-mode').inputValue(),'project');
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-  await page.screenshot({path:'docs/mobile-screenshot.png',fullPage:true});
+  await page.evaluate(()=>document.activeElement?.blur());
+  await page.screenshot({path:'docs/mobile-screenshot.png',fullPage:true,style:'#toast { visibility: hidden; }'});
   await page.locator('.level-card').first().click();
   assert.ok(await page.evaluate(()=>{const d=document.querySelector('dialog');return d.scrollWidth<=d.clientWidth;}));
   await page.locator('#close-dialog').click();
@@ -87,12 +127,53 @@ try {
   await page.reload();
   assert.equal(await page.locator('#progress-label').textContent(),'0 / 8');
   await page.locator('.level-card').first().click();
+  assert.equal(await page.locator('#reason').inputValue(),'');
   await page.locator('#hint').click();
   await page.locator('#assist').click();
   assert.equal(await page.locator('[data-card="29"]').inputValue(),'剔除');
   await page.locator('#reason').fill('模糊数据缺少信息，错标签会误导模型学习。');
   await page.locator('button[type="submit"]').click();
   assert.ok((await page.locator('.success-panel').textContent()).includes('60 分'));
+  await page.locator('#close-dialog').click();
+  await page.locator('.nav-button[data-view="passport"]').click();
+  page.once('dialog',d=>d.dismiss());
+  await page.locator('#reset').click();
+  assert.equal(await page.locator('.badge.earned').count(),1);
+  page.once('dialog',d=>d.accept());
+  await page.locator('#reset').click();
+  assert.equal(await page.locator('.level-card.completed').count(),0);
+  // Insufficient coins are reported in the dialog, not hidden behind it.
+  await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('ai-planet-v1'));s.coins=0;localStorage.setItem('ai-planet-v1',JSON.stringify(s));});
+  await page.reload();
+  await page.locator('.level-card').first().click();
+  await page.locator('#hint').click();
+  assert.ok(await page.locator('#dialog-toast').isVisible());
+  assert.ok((await page.locator('#dialog-toast').textContent()).includes('不足'));
+  await page.locator('#assist').click();
+  assert.ok((await page.locator('#dialog-toast').textContent()).includes('3 枚'));
+  await page.locator('#reason').fill('手机端任务弹窗的输入与按钮都应正常响应。');
+  await page.screenshot({path:'docs/task-mobile-screenshot.png'});
+  await page.locator('#close-dialog').click();
+  for (const width of [360,768,1440]) {
+    await page.setViewportSize({width,height:900});
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`Page overflow at ${width}`);
+    await page.locator('.level-card').nth(2).click();
+    assert.ok(await page.evaluate(()=>{const d=document.querySelector('dialog');return d.scrollWidth<=d.clientWidth;}),`Dialog overflow at ${width}`);
+    await page.locator('#close-dialog').click();
+  }
+  // Reset also clears an unfinished form retained in the closed dialog DOM.
+  await page.locator('.level-card').first().click();
+  await page.locator('#reason').fill('这段草稿在重新开始后必须清空，不能重新出现。');
+  await page.locator('#close-dialog').click();
+  await page.locator('.nav-button[data-view="passport"]').click();
+  page.once('dialog',d=>d.accept());
+  await page.locator('#reset').click();
+  await page.locator('#map-mode').selectOption('45');
+  await page.locator('.level-card').first().click();
+  assert.equal(await page.locator('#reason').inputValue(),'');
+  await page.locator('button[type="submit"]').click();
+  assert.ok(await page.locator('#dialog-toast').isVisible());
+  assert.equal(await page.locator('#toast').evaluate(el=>el.classList.contains('show')),false);
   assert.deepEqual(errors,[]);
-  console.log('Browser QA passed: 8 stages, validation, awards, export, persistence, mobile, corruption, hints and assistance. No page errors.');
+  console.log('Browser QA passed: all 8 stages; 7 locked previews; sidebar and journey navigation; filters; brand home; mode switching; drafts; validation; awards; export; print; reset confirm/cancel; persistence; mobile; corruption; hints; insufficient coins. No page errors.');
 } finally { await browser.close(); }

@@ -1,5 +1,6 @@
 import { newState, restore, STORAGE_KEY, unlocked, complete, buyHint, buySkip, training, balance, award } from './engine.js';
 import { stages, cards, samples } from './content.js';
+import { scene, heroArt } from './visuals.js';
 
 const $ = (q, root = document) => root.querySelector(q);
 const $$ = (q, root = document) => [...root.querySelectorAll(q)];
@@ -10,24 +11,41 @@ try { state = restore(localStorage.getItem(STORAGE_KEY)); } catch { state = newS
 let view = 'map';
 let active = 0;
 let toastTimer;
-function toast(message) { $('#toast').textContent = message; $('#toast').classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('#toast').classList.remove('show'), 5500); }
+let filter = 'all';
+const drafts = new Map();
+function toast(message) {
+  $('#toast').classList.remove('show');
+  $('#dialog-toast').hidden = true;
+  const inside = $('#mission-dialog').open;
+  const el = inside ? $('#dialog-toast') : $('#toast');
+  el.textContent = message; el.hidden = false; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.classList.remove('show'); if (inside) el.hidden = true; }, 6500);
+}
 function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { storageAvailable = false; toast('浏览器无法保存进度，请在离开前导出护照。'); } }
 function sync() {
   $('#team-label').textContent = state.team;
   $('#mode').value = state.mode;
   $('#progress').value = state.completed.length;
   $('#progress-label').textContent = `${state.completed.length} / 8`;
-  $('#stage-list').innerHTML = stages.map((s,i) => `<button class="stage-link ${state.completed.includes(i)?'done':''}" data-stage="${i}" ${!unlocked(state,i)?'disabled':''}><span>${state.completed.includes(i)?'✓':String(i+1).padStart(2,'0')}</span>${s.short}<small>${!unlocked(state,i)?'⌑':'↗'}</small></button>`).join('');
+  $('#stage-list').innerHTML = stages.map((s,i) => `<button class="stage-link ${state.completed.includes(i)?'done':unlocked(state,i)?'current':'upcoming'}" data-stage="${i}" aria-label="${s.name}，${unlocked(state,i)?'进入关卡':'查看预告'}"><span>${state.completed.includes(i)?'✓':String(i+1).padStart(2,'0')}</span>${s.short}<small>${!unlocked(state,i)?'预告':'↗'}</small></button>`).join('');
   $$('.nav-button').forEach(b => b.classList.toggle('active', b.dataset.view===view));
 }
 function stats() { return `<div class="stats"><div><span class="stat-symbol">▧</span><div><small>核心芯片</small><strong>${state.completed.length}<em> / 8</em></strong></div></div><div><span class="stat-symbol coin">✦</span><div><small>算力币</small><strong>${state.coins}<em> 枚</em></strong></div></div><div><span class="stat-symbol data">▥</span><div><small>优质数据</small><strong>${state.data}<em> 张</em></strong></div></div><div><span class="stat-symbol time">◷</span><div><small>任务时长</small><strong>${state.mode==='project'?'4':state.mode}<em> ${state.mode==='project'?'课时':'分钟'}</em></strong></div></div></div>`; }
-function planet() { return `<div class="planet-scene" aria-hidden="true"><span class="orbit orbit-one"></span><span class="orbit orbit-two"></span><span class="star s1">✦</span><span class="star s2">+</span><span class="star s3">✧</span><div class="planet"><span class="continent c1"></span><span class="continent c2"></span><span class="continent c3"></span><span class="planet-grid"></span><div class="core-chip">✳</div></div><span class="floating-chip chip-a">01</span><span class="floating-chip chip-b">AI</span><span class="planet-caption">CORE STATUS <b>${Math.round(state.completed.length/8*100)}%</b></span></div>`; }
 function render() {
   sync();
-  if (view==='passport') return renderPassport();
-  if (view==='teacher') return renderTeacher();
-  const next = stages.findIndex((_,i)=>!state.completed.includes(i));
-  $('#main').innerHTML = `<div class="page-heading"><span class="eyebrow">YOUR NEXT ADVENTURE STARTS HERE</span><span class="date-tag">探索日志 / 第 01 天</span></div><section class="hero"><div class="hero-copy"><span class="mission-pill"><i></i> 星球发来一条求救信号</span><h1>小小训练师，<br>准备好<span>重启未来</span>了吗？</h1><p>数据风暴袭击了 AI 星球，智能核心碎裂成 8 块芯片。<br>探索未知区域，学会与 AI 协作，一起点亮这颗星球。</p><button class="primary" ${next<0?'data-view="passport"':`data-stage="${next}"`}>${next<0?'查看修复成果':state.completed.length?'继续探索':'开启修复任务'} <span>↗</span></button><span class="hero-meta">10—15 岁适用 <b>·</b> 单人 / 2—4 人组队</span></div>${planet()}</section>${stats()}<section class="map-section"><div class="section-heading"><div><span class="eyebrow">THE EXPEDITION MAP</span><h2>八个区域，一场成长之旅</h2></div><span class="legend"><i></i> 可探索 <i class="gray"></i> 待解锁</span></div><div class="level-grid">${stages.map((s,i)=>{ const done=state.completed.includes(i), lock=!unlocked(state,i); return `<button class="level-card ${s.color} ${lock?'locked':''} ${done?'completed':''}" data-stage="${i}" ${lock?'disabled':''}><div class="card-top"><span class="level-icon">${s.icon}</span><span class="level-index">LEVEL ${String(i+1).padStart(2,'0')}</span><span class="card-status">${done?'✓ 已修复':lock?'⌑ 待解锁':'↗ 可探索'}</span></div><h3>${s.name}</h3><span class="level-en">${s.en}</span><p>${s.desc}</p><div class="card-footer"><span>✧ ${s.badge}</span><span>${done?'查看记录':lock?'完成前一关解锁':'进入关卡'} →</span></div></button>`;}).join('')}</div></section><section class="bottom-note"><span>✺</span><div><strong>不只学会使用 AI，更学会理解 AI。</strong><p>数据 → 训练 → 推理 → 改进 · 每一块芯片，都是一次新的发现。</p></div><button class="text-button" data-view="teacher">查看教师指南 ↗</button></section>`;
+  if (view === 'passport') return renderPassport();
+  if (view === 'teacher') return renderTeacher();
+  const next = stages.findIndex((_,i) => !state.completed.includes(i));
+  const selected = stages.map((s,i) => ({...s,i})).filter(s => filter === 'all' || (filter === 'done' ? state.completed.includes(s.i) : unlocked(state,s.i) && !state.completed.includes(s.i)));
+  $('#main').innerHTML = `
+    <div class="page-heading"><div><span class="eyebrow">MISSION CONTROL / 探索控制中心</span><h2>你好，${escape(state.team)} <span class="wave">✦</span></h2></div><label class="pace-control" for="map-mode"><span>探索节奏</span><select id="map-mode"><option value="45" ${state.mode==='45'?'selected':''}>45 分钟 · 精简</option><option value="90" ${state.mode==='90'?'selected':''}>90 分钟 · 完整</option><option value="project" ${state.mode==='project'?'selected':''}>4 课时 · 项目</option></select></label></div>
+    <section class="hero"><div class="hero-copy"><span class="mission-pill"><i></i> 星际任务 #001 <span>·</span> 智能核心修复计划</span><h1>下一站，<br>和 AI 一起<span>探索未来。</span></h1><p>数据风暴打乱了星球的秩序。收集 8 块核心芯片，<br>在一次次实验中，发现 AI 的能力与边界。</p><div class="hero-actions"><button class="primary" ${next<0?'data-view="passport"':`data-stage="${next}"`}>${next<0?'查看修复成果':state.completed.length?'继续我的冒险':'开启星球冒险'} <span>↗</span></button><button class="hero-secondary" data-view="teacher">怎么玩？ <span>▷</span></button></div><div class="hero-meta"><span>✧ 8 个探索区域</span><span>♧ 1—4 人小队</span><span>◎ 10—15 岁</span></div></div>${heroArt(state.completed.length)}</section>
+    ${stats()}
+    <section class="expedition-strip"><div class="expedition-title"><span class="eyebrow">YOUR JOURNEY</span><strong>点亮你的探索轨迹</strong><small>每一步，离智能核心更近一点</small></div><div class="journey-nodes">${stages.map((s,i)=>`<button data-stage="${i}" class="journey-node ${state.completed.includes(i)?'done':unlocked(state,i)?'current':''}" aria-label="${s.name}，${unlocked(state,i)?'进入关卡':'查看预告'}"><span>${state.completed.includes(i)?'✓':s.icon}</span><small>${String(i+1).padStart(2,'0')}</small></button>`).join('')}</div></section>
+    <section class="map-section"><div class="section-heading"><div><span class="eyebrow">EXPLORE THE UNKNOWN</span><h2>选择你的下一场冒险 <span class="count-label">8 个区域</span></h2></div><div class="filters" aria-label="筛选关卡">${[['all','全部区域'],['ready','可挑战'],['done','已修复']].map(([id,label])=>`<button data-filter="${id}" aria-pressed="${filter===id}" class="${filter===id?'selected':''}">${label}</button>`).join('')}</div></div>
+    <div class="level-grid">${selected.map(s=>{const i=s.i,done=state.completed.includes(i),lock=!unlocked(state,i); return `<button class="level-card region-${i} ${done?'completed':lock?'locked':'available'}" data-stage="${i}" aria-label="${s.name}，${done?'查看成果':lock?'查看关卡预告':'开始挑战'}"><div class="card-illustration"><span class="level-index">SECTOR ${String(i+1).padStart(2,'0')}</span><span class="card-status">${done?'✓ 已修复':lock?'◷ 可预览':'● 当前任务'}</span>${scene(i)}</div><div class="card-copy"><div class="level-en">${s.en}</div><h3>${s.name}</h3><p>${s.desc}</p><div class="card-footer"><span>✧ ${s.badge}</span><span class="card-arrow">${done?'回顾':lock?'预览':'出发'} ↗</span></div></div></button>`;}).join('') || `<div class="empty-state"><span>✧</span><h3>${filter==='done'?'这里即将点亮你的第一枚徽章':'所有区域已修复！'}</h3><p>${filter==='done'?'完成一个任务，回来看看你的探索成果。':'前往护照，回顾这段星际旅程。'}</p><button class="secondary" ${filter==='done'?'data-filter="all"':'data-view="passport"'}>${filter==='done'?'查看全部区域':'查看训练师护照'} →</button></div>`}</div></section>
+    <section class="bottom-note"><div class="note-icon">✺</div><div><span class="eyebrow">A NOTE FROM PIP</span><strong>好奇心是你的超能力，独立思考是你的指南针。</strong><p>AI 不一定每次都对。大胆提问、寻找证据，下一次就能做得更好。</p></div><button class="secondary" data-view="passport">我的探索护照 ↗</button></section>`;
 }
 function renderPassport() {
   $('#main').innerHTML = `<span class="eyebrow">MY EXPLORER PASSPORT</span><div class="section-heading"><h1>训练师护照</h1><button class="secondary" id="export">导出探索记录 ↓</button></div><section class="panel"><label for="team-name">小队代号（请勿填写真实姓名）</label><div class="inline-form"><input id="team-name" maxlength="24" value="${escape(state.team)}"><button class="primary" id="save-team">保存代号</button></div><p class="muted">角色分工：数据官 · 训练师 · 测试员 · 伦理官。单人可依次扮演全部角色。</p></section>${stats()}<section class="panel"><h2>${award(state)}</h2><p>${state.completed.length===8?'8 块芯片已归位，智能核心重新点亮！请和伙伴分享最重要的发现。':'每完成一个区域，你的护照就会多一枚徽章。'}</p><div class="badge-grid">${stages.map((s,i)=>`<div class="badge ${state.completed.includes(i)?'earned':''}"><span>${s.icon}</span><strong>${s.badge}</strong><small>${state.completed.includes(i)?`${state.scores[i]} 分 · 已收集`: '尚未收集'}</small></div>`).join('')}</div></section><section class="panel"><h2>团队协作复盘</h2><p class="muted">由小队或教师共同确认；单人模式可按不同角色自评。</p>${['我能倾听并复述伙伴的想法','我能说明自己的证据和推理过程','我能发现风险并主动提出改进'].map((t,i)=>`<label class="check-row"><input type="checkbox" class="collab" ${state.collaborationItems[i]?'checked':''}>${t}</label>`).join('')}<p id="award-note">${state.completed.includes(6)?'✧ 最佳伦理议员：已完成 AI 使用公约。':''}</p></section><section class="panel"><h2>探索记录</h2>${state.completed.map(i=>`<details><summary>${String(i+1).padStart(2,'0')} ${stages[i].name} · ${state.scores[i]} 分${state.skips.includes(i)?' · 使用辅助':''}</summary><pre>${escape(JSON.stringify(state.answers[i],null,2))}</pre></details>`).join('') || '<p class="muted">还没有完成的关卡，去星球地图开启第一步吧。</p>'}<h3>星际事件</h3>${state.events.map(e=>`<p class="event">${escape(e)}</p>`).join('')||'<p class="muted">星际巡航尚未开始。</p>'}</section><div class="page-actions"><button class="secondary" id="print">打印护照</button><button class="text-button danger" id="reset">重新开始探索</button></div>`;
@@ -36,7 +54,7 @@ function renderTeacher() {
   $('#main').innerHTML = `<span class="eyebrow">TEACHER'S FIELD GUIDE</span><h1>把好奇心带进课堂。</h1><p class="lead">每一次判断，都比一个正确答案更重要。</p><section class="panel"><h2>选择你的课堂节奏</h2><div class="teacher-grid"><div><h3>45 分钟 · 精简挑战</h3><p>开场 3 分钟 → 每关约 4 分钟 → 分享 10 分钟。保留全部核心概念，口头复盘。</p></div><div><h3>90 分钟 · 完整探索</h3><p>开场 5 分钟 → 每关约 9 分钟 → 分享 13 分钟。轮换团队角色，并解释每次判断。</p></div><div><h3>4 课时 · 项目实践</h3><p>每课时完成 2 关；第 4 课时安排校园 AI 方案展示与同伴反馈。建议每课时 40 分钟。</p></div></div><p class="muted">节奏设置调整教学提示与任务时长，不设置倒计时、不减少关卡；教师可灵活掌握讨论时间。</p></section><section class="panel"><h2>教师引导问题</h2><ol><li>AI 根据什么做出判断？训练数据能代表现实吗？</li><li>为什么数据更多不一定更好？干净的数据是否也可能缺乏代表性？</li><li>模型很有信心时，我们还需要哪些证据？</li><li>AI 出错时，谁应检查、纠正和承担责任？</li><li>像人一样说话，能证明 AI 有意识吗？我们还缺少什么证据？</li></ol></section><section class="panel"><h2>安全与课堂约定</h2><ul><li>不拍人脸，不输入姓名、联系方式、住址等个人信息。</li><li>本游戏不联网调用模型；模型训练、准确率、生成作品均为教学模拟。</li><li>外部 AI 工具由教师使用合适账号并全程陪同，先确认适龄条件与数据规则。</li><li>尊重不同背景，避免用群体刻板印象解释偏见。</li><li>开放题的自动通关只表示材料填写完整，质量由教师或同伴讨论确认。</li></ul></section><section class="panel"><h2>准备与评价</h2><p>线上：每组一台电脑或平板；不插电：30 张数据卡、标签贴、护照、芯片贴纸、算力币与海报纸。</p><p>每关首次完成获得 1 枚芯片和 2 枚算力币。提示花费 1 枚，辅助解题花费 3 枚；重复查看不再发奖。辅助解题后仍需提交作品或概念回答。</p><p>金牌：全部通关、平均分 ≥85、优质数据 ≥20、算力币 ≥5、协作自评 ≥2；其他全部通关者获得银牌。完成伦理议会另获伦理议员称号。</p><button class="secondary" id="print">打印本页</button></section>`;
 }
 function field(label, id, placeholder = '', min = 8) { return `<label class="input-label" for="${id}">${label}</label><textarea id="${id}" minlength="${min}" maxlength="1200" placeholder="${placeholder}" required></textarea>`; }
-function choice(id, options) { return `<select id="${id}" required><option value="">请选择</option>${options.map((o,i)=>`<option value="${i}">${o}</option>`).join('')}</select>`; }
+function choice(id, options) { return `<select id="${id}" aria-label="${id.startsWith('sample-')?'样本 '+(Number(id.split('-')[1])+1)+' 的预测判断':'选择你的判断'}" required><option value="">请选择</option>${options.map((o,i)=>`<option value="${i}">${o}</option>`).join('')}</select>`; }
 function stageBody(id) {
   if (id===0) return `<p>检查 30 张图标数据卡。每张卡选择正确类别，或标记为剔除；保留至少 20 张清晰且标签正确的数据。</p><div class="data-grid">${cards.map(c=>`<label class="data-card"><small>#${String(c.id+1).padStart(2,'0')} · 标签：${c.label}</small><span class="animal ${c.blurry?'blurred':''}" aria-label="${c.blurry?'模糊的': '清晰的'}${c.actual}图标">${c.icon}</span><small>${c.blurry?'图像模糊':'图像清晰'}</small><select data-card="${c.id}" aria-label="第 ${c.id+1} 张数据卡的处理方式"><option value="">未处理</option>${['猫','狗','其他','剔除'].map(t=>`<option>${t}</option>`).join('')}</select></label>`).join('')}</div>${field('剔除理由','reason','描述模糊数据与错标签会怎样影响模型。')}`;
   if (id===1) return `<div class="notice">教学模拟 · 数值不来自真实模型训练</div><label class="input-label" for="epochs">训练轮数：<strong id="epoch-count">5</strong> 轮</label><input type="range" id="epochs" min="1" max="20" value="5"><div id="training-result"></div><p class="muted">试试 3、10、20 轮。训练越久，测试表现就一定越好吗？</p>${field('为什么测试准确率不是 100%？','reason','从样本差异、信息不足或模型能力解释。')}${choice('train-choice',['训练准确率高就能保证新题全对','新样本与训练数据有差异，模型也有局限'])}`;
@@ -47,18 +65,48 @@ function stageBody(id) {
   if (id===6) return `<p>议题：校园 AI 美术展想收集同学照片、模仿画师风格并自动评奖。四个角色分别会担心什么？</p><div class="ethics-options">${['在未告知同学的情况下上传人脸照片','优先使用不含个人信息的素材；确需收集时先征得适当同意','任何网上作品都可以任意复制','检查素材授权并记录来源，清楚标注 AI 参与','所有错误都由 AI 承担责任','由人审核输出，明确负责人并提供纠错渠道'].map((t,i)=>`<label class="check-row"><input type="checkbox" name="ethics" value="${i}">${t}</label>`).join('')}</div>${field('隐私规则','rule-privacy','我们只收集什么？哪些信息不应上传？')}${field('版权规则','rule-copyright','如何尊重原作者与素材授权？')}${field('责任规则','rule-responsibility','谁审核？有错误时如何处理？')}<p class="muted">系统检查选择与填写完整性；公约是否合理，请小队或教师共同评议。</p>`;
   return `<p>为食堂浪费、图书馆找书、校园节水等问题设计一个 AI 应用。</p>${field('校园问题','problem','具体帮助谁解决什么问题？')}${field('感知','sense','它接收哪些信息？避免使用个人信息。')}${field('思考','think','它如何分析信息或规划下一步？')}${field('行动','act','它能做什么？失败时怎样寻求人类帮助？')}<label class="input-label" for="tech">选一项相关技术</label>${choice('tech',['AI Agent：围绕目标规划与执行任务','世界模型：预测环境的变化','神经形态计算：借鉴神经系统的计算方式','具身智能：通过身体与环境交互'])}${field('为什么使用这项技术？','tech-reason','解释它在你的方案里承担的具体作用。')}<label class="check-row"><input id="reviewed" type="checkbox" required>我已向伙伴 / 教师展示，或独立口述复盘方案。</label>`;
 }
+function rememberDraft() {
+  const form = $('#mission-form');
+  if (!form) return;
+  drafts.set(active, $$('input, select, textarea',form).map(el => ({ key: el.id || el.getAttribute('data-card') || el.name + el.value, value: el.value, checked: el.checked })));
+}
+function restoreDraft() {
+  const draft = drafts.get(active);
+  if (!draft) return;
+  $$('input, select, textarea', $('#mission-form')).forEach(el => {
+    const entry = draft.find(d => d.key === (el.id || el.getAttribute('data-card') || el.name + el.value));
+    if (entry) { el.value = entry.value; if (el.type === 'checkbox') el.checked = entry.checked; }
+  });
+}
 function openStage(id) {
-  if (!unlocked(state,id)) return;
+  if (!Number.isInteger(id) || !stages[id]) return;
+  if ($('#mission-dialog').open) rememberDraft();
+  $('#dialog-toast').hidden = true;
+  const dialog = $('#mission-dialog');
+  dialog.className = `region-${id}`;
+  if (!unlocked(state,id)) {
+    active = id;
+    const s=stages[id], next=stages.findIndex((_,i)=>!state.completed.includes(i));
+    $('#dialog-content').innerHTML = `<div class="dialog-header"><span class="eyebrow">SECTOR ${String(id+1).padStart(2,'0')} / 关卡预告</span><button class="close" id="close-dialog" aria-label="关闭关卡">×</button></div><div class="preview-art">${scene(id)}</div><h2 id="dialog-title">${s.name}</h2><p class="lead">${s.concept}</p><p>${s.desc}</p><div class="preview-facts"><div><small>本关徽章</small><strong>✧ ${s.badge}</strong></div><div><small>完成奖励</small><strong>1 枚芯片 + 2 枚算力币</strong></div></div><div class="notice">先完成「${stages[id-1].name}」即可解锁此关。当前可以挑战「${stages[next].name}」。</div><button class="primary" data-stage="${next}">前往当前任务 ↗</button>`;
+    if (!dialog.open) dialog.showModal();
+    dialog.scrollTop = 0;
+    $('#close-dialog').focus({preventScroll:true});
+    return;
+  }
   active = id;
   const s=stages[id], done=state.completed.includes(id);
   $('#dialog-content').innerHTML = `<div class="dialog-header"><span class="eyebrow">LEVEL ${String(id+1).padStart(2,'0')} / ${s.en}</span><button class="close" id="close-dialog" aria-label="关闭关卡">×</button></div><h2 id="dialog-title">${s.name}</h2><p class="lead">${s.concept}</p><div class="mission-timing">${state.mode==='45'?'建议 4 分钟 · 完成操作并口头解释':state.mode==='project'?'建议 15 分钟 · 操作、记录并分享':'建议 9 分钟 · 轮换角色并讨论证据'}</div>${done?`<div class="success-panel"><span>✧</span><h3>${s.badge} · 芯片已收集</h3><p>本关 ${state.scores[id]} 分${state.skips.includes(id)?'（使用辅助解题）':''}</p><p>${s.fact}</p><pre>${escape(JSON.stringify(state.answers[id],null,2))}</pre><button class="primary" id="next-stage">${id===7?'查看最终成果':'前往下一区域 →'}</button></div>`:`<form id="mission-form">${stageBody(id)}<div class="hint-box" id="hint-box" ${state.hints.includes(id)||state.skips.includes(id)?'':'hidden'}>${s.hint}</div><div id="feedback" role="status" aria-live="polite"></div><div class="mission-actions"><button type="button" class="secondary" id="hint" ${state.hints.includes(id)?'disabled':''}>${state.hints.includes(id)?'提示已解锁':'提示 · 1 币'}</button><button type="button" class="text-button" id="assist" ${state.skips.includes(id)?'disabled':''}>${state.skips.includes(id)?'已使用辅助':'辅助解题 · 3 币'}</button><button class="primary" type="submit">提交修复 ↗</button></div><p class="muted small">辅助解题会填入操作题参考答案；文字作品仍需自己完成，本关最高 60 分。</p></form>`}`;
   if (!$('#mission-dialog').open) $('#mission-dialog').showModal();
   if (!done) {
+    $('#mission-form').noValidate = true;
+    if (state.skips.includes(id) && !drafts.has(id)) assist(false);
+    restoreDraft();
     if (id===1) updateTraining();
     if (id===3) updateBalance();
-    if (state.skips.includes(id)) assist(false);
     $('#mission-form').addEventListener('submit', submit);
   }
+  dialog.scrollTop = 0;
+  $('#close-dialog').focus({preventScroll:true});
 }
 function updateTraining() {
   const n=Number($('#epochs').value), t=training(n);
@@ -89,6 +137,16 @@ function assist(charge=true) {
 }
 function submit(event) {
   event.preventDefault();
+  const form = $('#mission-form');
+  const invalid = $$('[required]',form).find(el => !el.checkValidity() || (el.tagName === 'TEXTAREA' && el.value.trim().length < el.minLength));
+  if (invalid) {
+    $('#feedback').className='feedback error';
+    $('#feedback').textContent = invalid.type === 'checkbox' ? '请先完成展示复盘并勾选确认。' : invalid.tagName === 'TEXTAREA' ? `请完成文字说明，至少输入 ${invalid.minLength} 个字。` : '还有题目没有选择答案，请完成高亮的选项。';
+    invalid.setAttribute('aria-invalid','true');
+    invalid.focus();
+    toast($('#feedback').textContent);
+    return;
+  }
   const val=id=>$( `#${id}`).value.trim();
   const written=id=>val(id).length>=8;
   let ok=false, answer={}, error='请完成所有操作，并用至少 8 个字解释你的想法。';
@@ -105,11 +163,12 @@ function submit(event) {
   if (active===5) { ok=[0,1,1].every((x,i)=>val(`claim-${i}`)===String(x))&&written('evidence'); answer={判断:['有资料支持','与资料矛盾','与资料矛盾'],核查记录:val('evidence')}; error='请依据档案找出两处矛盾，核查记录至少写 8 个字；具体证据由同伴或教师复核。'; }
   if (active===6) { const selected=$$('[name="ethics"]:checked').map(e=>Number(e.value)); ok=selected.length===3&&[1,3,5].every(x=>selected.includes(x))&&['rule-privacy','rule-copyright','rule-responsibility'].every(written); answer={隐私:val('rule-privacy'),版权:val('rule-copyright'),责任:val('rule-responsibility'),备注:'公约内容需同伴或教师评议'}; error='请选择三项负责任的做法，并分别写出隐私、版权和责任规则（每项至少 8 字）。'; }
   if (active===7) { ok=['problem','sense','think','act','tech-reason'].every(written)&&val('tech')!==''&&$('#reviewed').checked; answer={问题:val('problem'),感知:val('sense'),思考:val('think'),行动:val('act'),技术:$('#tech').selectedOptions[0].textContent,技术作用:val('tech-reason'),备注:'已自评展示；方案质量需课堂评议'}; }
-  if (!ok) { $('#feedback').className='feedback error'; $('#feedback').textContent=error; return; }
+  if (!ok) { $('#feedback').className='feedback error'; $('#feedback').textContent=error; $('#feedback').scrollIntoView({block:'center'}); return; }
   complete(state,active,state.skips.includes(active)?60:100,answer); save(); render(); openStage(active); toast(`获得「${stages[active].badge}」！${state.events.at(-1)}`);
 }
 document.addEventListener('click', e=>{
-  const v=e.target.closest('[data-view]'); if(v) { view=v.dataset.view; render(); $('#main').focus(); }
+  const v=e.target.closest('[data-view]'); if(v) { e.preventDefault(); view=v.dataset.view; render(); $('#main').focus({preventScroll:true}); window.scrollTo(0,0); }
+  const f=e.target.closest('[data-filter]'); if(f) { filter=f.dataset.filter; render(); }
   const s=e.target.closest('[data-stage]'); if(s&&!s.disabled) openStage(Number(s.dataset.stage));
   const b=e.target.closest('button'); if(!b) return;
   if(b.id==='close-dialog') $('#mission-dialog').close();
@@ -120,13 +179,14 @@ document.addEventListener('click', e=>{
   if(b.id==='save-team') { state.team=$('#team-name').value.trim()||'星际探索小队'; save(); sync(); toast('小队代号已保存。'); }
   if(b.id==='export') { const blob=new Blob([JSON.stringify({...state,称号:award(state)},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a'); a.href=url; a.download='AI星球-训练师护照.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000); }
   if(b.id==='print') window.print();
-  if(b.id==='reset'&&window.confirm('重新开始会清空本浏览器中的全部进度。建议先导出护照。确定重新开始吗？')) { state=newState(); save(); view='map'; render(); }
+  if(b.id==='reset'&&window.confirm('重新开始会清空本浏览器中的全部进度。建议先导出护照。确定重新开始吗？')) { state=newState(); drafts.clear(); filter='all'; save(); view='map'; render(); }
 });
-document.addEventListener('input', e=>{ if(e.target.id==='epochs') updateTraining(); if(/^cat-\d$/.test(e.target.id)) updateBalance(); });
+document.addEventListener('input', e=>{ e.target.removeAttribute('aria-invalid'); if(e.target.id==='epochs') updateTraining(); if(/^cat-\d$/.test(e.target.id)) updateBalance(); });
 document.addEventListener('change', e=>{
-  if(e.target.id==='mode') { state.mode=e.target.value; save(); render(); }
+  if(e.target.id==='mode'||e.target.id==='map-mode') { state.mode=e.target.value; save(); render(); toast('探索节奏已更新。'); }
   if(e.target.classList.contains('collab')) { state.collaborationItems=$$('.collab').map(el=>el.checked); state.collaboration=state.collaborationItems.filter(Boolean).length; save(); const focused=$$('.collab').indexOf(e.target); renderPassport(); $$('.collab')[focused]?.focus(); }
 });
+$('#mission-dialog').addEventListener('close', rememberDraft);
 render();
 if(!storageAvailable) toast('当前浏览器限制本地存储，离开前请导出护照。');
 
