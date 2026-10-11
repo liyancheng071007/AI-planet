@@ -2840,3 +2840,124 @@ dialog
 }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; } }
 @media print { .hero-svg { animation:none; } }
+
+/* Round 3 — passport and classroom surfaces */
+.section-heading h1 { font-size:29px; margin:10px 0 0; }
+.passport-cover { display:flex; justify-content:space-between; align-items:center; gap:30px; border-radius:20px; padding:35px 40px; background:radial-gradient(circle at 90% 25%,#f1e8cf66,transparent 40%),linear-gradient(110deg,#32305d,#4b4172); color:#fff; position:relative; overflow:hidden; }
+.passport-cover:after { content:""; width:400px; height:400px; border:1px solid #e1d5fa15; border-radius:50%; position:absolute; right:-90px; bottom:-220px; box-shadow:0 0 0 28px #d5cff508,0 0 0 56px #d5cff508; pointer-events:none; }
+.passport-label { font-size:10px; letter-spacing:2px; color:#b5acd5; }
+.passport-cover h2 { font-size:30px; margin:17px 0 12px; overflow-wrap:anywhere; }
+.passport-cover-copy { min-width:0; max-width:70%; }
+.passport-cover p { font-size:13px; color:#bdb6d7; max-width:470px; }
+.passport-route { display:flex; align-items:center; gap:18px; margin:25px 0; }
+.passport-route>span { font-size:10px; color:#a89dc7; }
+.passport-route b { display:block; font-size:13px; color:#e2dcef; margin-top:8px; }
+.passport-route i { color:#88789e; font-size:12px; font-style:normal; max-width:160px; overflow:hidden; white-space:nowrap; }
+.passport-status { display:inline-block; font-size:11px; border:1px solid #d1c0ee48; border-radius:30px; padding:7px 12px; color:#e5d5ff; background:#c2b0e311; }
+.passport-stamp { text-align:center; position:relative; z-index:1; flex-shrink:0; }
+.passport-stamp>small { display:block; margin-top:16px; font-size:10px; color:#c2b7d5; }
+.progress-ring { width:144px; height:144px; padding:7px; border-radius:50%; background:conic-gradient(#d2b2f1 var(--progress),#9281ac40 0); transform:rotate(-8deg); }
+.progress-ring>span { display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%; background:#51466f; border:1px dashed #afa0c259; border-radius:50%; transform:rotate(8deg); }
+.progress-ring strong { font-size:43px; color:#eadcff; font-weight:600; }
+.progress-ring small { font-size:17px; color:#b6a6c9; margin-left:7px; }
+.progress-ring em { font-size:10px; color:#cfc0df; font-style:normal; margin-top:7px; }
+.passport-toolbar { display:flex; justify-content:space-between; align-items:center; padding:10px 4px; font-size:11px; color:#919bb0; }
+.collection-count { font-size:11px; color:#9a89b4; padding:7px 10px; border:1px solid #e7dfef; border-radius:8px; background:#f8f5fc; white-space:nowrap; }
+.badge-panel>.muted { font-size:12px; }
+.badge { position:relative; padding:24px 12px 21px; }
+.badge>.badge-medallion { position:relative; width:69px; height:69px; border:4px double #d3d9e5; border-radius:50%; background:#f2f4f9; color:#a8b1c2; margin:0 auto 19px; display:grid; place-items:center; }
+.badge-medallion i { position:absolute; bottom:-7px; right:-7px; border:3px solid white; background:#e4e8f0; border-radius:50%; color:#949eb2; font-size:9px; font-style:normal; width:24px; height:24px; display:grid; place-items:center; }
+.badge.earned { background:linear-gradient(145deg,#fff,var(--accent)); border-color:color-mix(in srgb,var(--accent-ink) 25%,white); color:var(--accent-ink); }
+.badge.earned:nth-child(n) { background:linear-gradient(145deg,#fff,var(--accent)); border-color:color-mix(in srgb,var(--accent-ink) 25%,white); color:var(--accent-ink); }
+.badge.earned>.badge-medallion { color:var(--accent-ink); background:var(--accent); border-color:var(--accent-ink); box-shadow:0 5px 17px color-mix(in srgb,var(--accent-ink) 15%,transparent); }
+.badge.earned .badge-medallion i { background:var(--accent-ink); color:white; }
+.collection-next { display:flex; justify-content:space-between; align-items:center; margin-top:20px; padding:14px 17px; border-radius:10px; background:#f5f3fa; font-size:12px; color:#8b81a5; }
+.collection-next strong { color:#776299; }
+.collection-finished { text-align:center; color:#9476b8; margin:25px 0 0; font-size:13px!important; }
+.passport-columns { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.passport-columns .panel { margin:0 0 20px; }
+.passport-columns h2 { margin:12px 0 20px; font-size:20px; }
+.passport-columns label { font-size:12px; }
+.passport-columns p { font-size:12px; }
+.role-chips { display:flex; gap:7px; flex-wrap:wrap; margin:18px 0; }
+.role-chips>span { font-size:10px; padding:7px 10px; background:#eef2fb; color:#8090b5; border-radius:6px; }
+.role-chips>span:nth-child(2) { background:#fff0e1; color:#b7946e; }
+.role-chips>span:nth-child(3) { background:#eaf5f2; color:#78a49b; }
+.role-chips>span:nth-child(4) { background:#f4ecfb; color:#a184b9; }
+.journal-entry summary { display:flex; align-items:center; gap:13px; list-style:none; min-height:34px; font-size:13px; }
+.journal-entry summary::-webkit-details-marker { display:none; }
+.journal-entry summary:after { content:"+"; color:#a398bb; font-size:19px; margin-left:10px; }
+.journal-entry[open] summary:after { content:"−"; }
+.journal-entry summary small { margin-left:auto; font-size:10px; color:#8796ad; }
+.journal-index { display:grid; place-items:center; width:29px; height:29px; border-radius:8px; background:#f0edf7; color:#9c89b7; font-size:10px; }
+.journal-entry>.answer-record { padding:10px 15px; background:#f8f9fc; border-radius:10px; }
+.journal-empty { text-align:center; padding:26px 10px; }
+.journal-empty>span { font-size:40px; color:#b3a0ce; }
+.journal-empty h3 { font-size:16px; margin:13px 0; }
+.journal-empty p { font-size:12px; color:#929cb0; }
+.timeline-event { display:flex; gap:16px; position:relative; padding:12px 0; }
+.timeline-event>span { width:27px; height:27px; flex-shrink:0; display:grid; place-items:center; border-radius:50%; font-size:9px; color:#929fba; background:#f0f3fa; border:1px solid #e2e7f2; z-index:1; }
+.timeline-event:not(:last-child):after { content:""; position:absolute; top:38px; bottom:-10px; left:13px; width:1px; background:#e4e8f2; }
+.timeline-event p { margin:1px 0 0; font-size:12px; color:#8190a7; }
+.guide-cover { display:flex; justify-content:space-between; align-items:center; gap:24px; background:#eee9f6; border:1px solid #e1d8ef; border-radius:19px; padding:35px; }
+.guide-cover h1 { margin:18px 0 15px; font-size:36px; line-height:1.45; color:#665680; }
+.guide-cover p { font-size:13px; color:#9584a8; }
+.guide-cover .eyebrow { font-size:9px; color:#a188b5; }
+.guide-orbit { flex-shrink:0; width:36%; text-align:center; }
+.guide-orbit .scene-svg { height:205px; }
+.guide-orbit>span { font-size:9px; color:#ac95be; letter-spacing:2px; }
+.classroom-steps { display:grid; grid-template-columns:repeat(3,1fr); gap:17px; margin:21px 0 26px; }
+.classroom-steps>div { position:relative; padding:20px; background:#fff; border:1px solid var(--line); border-radius:12px; }
+.classroom-steps>div>span { display:block; font-size:10px; color:#a599bd; margin-bottom:12px; }
+.classroom-steps strong { font-size:14px; }
+.classroom-steps p { font-size:11px; color:#8995a9; margin:9px 0 0; }
+.teacher-mode-label { display:flex; gap:10px; align-items:center; font-size:11px; color:#8d96ac; }
+.teacher-mode-label select { font-size:11px; }
+@media(max-width:1000px) { .passport-columns { grid-template-columns:1fr; gap:0; } .guide-orbit { width:32%; } .guide-cover { padding:28px; } .guide-cover h1 { font-size:31px; } }
+@media(max-width:600px) {
+ .section-heading h1 { font-size:24px; line-height:1.5; }
+ .passport-cover { padding:27px 22px; gap:15px; align-items:flex-start; }
+ .passport-cover h2 { font-size:23px; }
+ .passport-cover-copy { max-width:65%; }
+ .passport-cover p { font-size:11px; }
+ .passport-label { font-size:7px; letter-spacing:1px; }
+ .progress-ring { width:89px; height:89px; padding:5px; }
+ .progress-ring strong { font-size:27px; }
+ .progress-ring small { font-size:11px; margin-left:4px; }
+ .progress-ring em { font-size:8px; }
+ .passport-stamp { margin-top:19px; }
+ .passport-stamp>small { font-size:8px; max-width:90px; line-height:1.7; }
+ .passport-route { gap:8px; margin:19px 0; }
+ .passport-route i { max-width:37px; }
+ .passport-route b { font-size:11px; }
+ .passport-route>span { font-size:8px; }
+ .passport-toolbar { font-size:9px; gap:8px; }
+ .passport-toolbar button { font-size:10px; white-space:nowrap; }
+ .badge>.badge-medallion { width:59px; height:59px; }
+ .badge .ui-icon { width:29px; height:29px; }
+ .collection-next { padding:12px; font-size:10px; }
+ .collection-next button { font-size:10px; }
+ .journal-entry summary { gap:8px; font-size:11px; }
+ .journal-entry summary small { font-size:8px; }
+ .journal-entry summary:after { margin-left:0; }
+ .guide-cover { padding:25px 22px; position:relative; overflow:hidden; }
+ .guide-cover>div:first-child { z-index:1; }
+ .guide-cover h1 { font-size:31px; }
+ .guide-cover p { font-size:12px; }
+ .guide-orbit { position:absolute; width:155px; right:-20px; bottom:-10px; opacity:.4; }
+ .guide-orbit>span { display:none; }
+ .classroom-steps { gap:8px; }
+ .classroom-steps>div { padding:14px 11px; }
+ .classroom-steps strong { font-size:12px; }
+ .classroom-steps p { font-size:10px; }
+}
+@media print {
+ .passport-cover { background:white; color:black; border:1px solid #bbb; }
+ .passport-cover h2,.passport-cover p,.passport-label { color:black; }
+ .passport-toolbar,.collection-next,.journal-entry summary:after { display:none; }
+ .passport-columns { grid-template-columns:1fr 1fr; }
+ .passport-stamp { display:none; }
+ .journal-entry { break-inside:avoid; }
+ .guide-cover { background:white; break-inside:avoid; }
+ .teacher-mode-label { display:none; }
+}

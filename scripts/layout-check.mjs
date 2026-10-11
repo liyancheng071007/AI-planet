@@ -17,7 +17,30 @@ try {
     await page.locator('.journey-node').nth(3).click();
     assert.ok(await page.locator('.preview-art').isVisible());
     await page.locator('#close-dialog').click();
-    if(width===390) await page.screenshot({path:'docs/mobile-screenshot.png',fullPage:true});
+    if(width===390) {
+      await page.evaluate(()=>document.activeElement?.blur());
+      await page.screenshot({path:'docs/mobile-screenshot.png',fullPage:true});
+    }
+  }
+  await page.locator('.nav-button[data-view="passport"]').click();
+  assert.ok(await page.locator('.passport-cover').isVisible());
+  assert.equal(await page.locator('.badge').count(),8);
+  await page.locator('#team-name').fill('星际研究所');
+  await page.locator('#save-team').click();
+  assert.ok((await page.locator('.passport-cover').textContent()).includes('星际研究所'));
+  await page.screenshot({path:'docs/passport-screenshot.png',fullPage:true,style:'#toast { visibility:hidden; }'});
+  await page.locator('.nav-button[data-view="teacher"]').click();
+  assert.ok(await page.locator('.guide-cover').isVisible());
+  await page.locator('#teacher-mode').selectOption('45');
+  assert.equal(await page.locator('#mode').inputValue(),'45');
+  await page.evaluate(()=>{window.print=()=>window.__printCalled=true;});
+  await page.locator('[data-print]').click();
+  assert.equal(await page.evaluate(()=>window.__printCalled),true);
+  await page.screenshot({path:'docs/teacher-screenshot.png',fullPage:true,style:'#toast { visibility:hidden; }'});
+  for (const screen of ['passport','teacher']) {
+    await page.setViewportSize({width:360,height:900});
+    await page.locator(`.nav-button[data-view="${screen}"]`).click();
+    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`${screen} overflow at 360`);
   }
   assert.deepEqual(errors,[]);
   console.log('Layout QA passed at 360, 390, 768, 1024 and 1440px; illustrations, navigation and reduced-motion verified.');
