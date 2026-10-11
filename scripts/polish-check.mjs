@@ -33,9 +33,18 @@ try {
   assert.equal(await page.evaluate(()=>document.activeElement.dataset.card),'1');
   assert.ok(await page.locator('.field-counter.ready').count());
   await page.locator('#assist').click();
+  await page.locator('#assist-cancel').click();
+  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ai-planet-v1')||'{"coins":5}').coins),5);
+  await page.locator('#assist').click();
+  await page.locator('#assist-confirm').click();
   assert.equal(await page.locator('#data-processed').textContent(),'30 / 30');
   assert.equal(await page.locator('#data-discarded').textContent(),'8');
   assert.ok((await page.locator('.dialog-balance').textContent()).includes('2 枚'));
+  await page.locator('#hint').click();
+  assert.equal(await page.locator('#hint-box').isVisible(),false);
+  await page.locator('#hint').click();
+  assert.equal(await page.locator('#hint-box').isVisible(),true);
+  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ai-planet-v1')).coins),2);
   await page.locator('button[type="submit"]').click();
   assert.equal(await page.locator('.earned-seal').count(),1);
   assert.equal(await page.locator('.reward-receipt').count(),1);
@@ -72,6 +81,14 @@ try {
   await page.locator('[data-epochs="10"]').click();
   await page.locator('.training-chart').scrollIntoViewIfNeeded();
   await page.screenshot({path:'docs/training-screenshot.png'});
+  const future=newState();future.completed=[0,1,2,3,4,5,6];
+  await seed(future);
+  await page.locator('.level-card').nth(7).click();
+  await page.locator('#structure').click();
+  assert.ok((await page.locator('#assistance-review').textContent()).includes('五个小问题'));
+  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ai-planet-v1')).coins),5);
+  await page.locator('#structure').click();
+  assert.equal(await page.locator('#assistance-review').isVisible(),false);
   assert.deepEqual(errors,[]);
   console.log('Polish QA passed: live task counts, focus shortcut, writing feedback, live wallet, rewards, readable records, prompt checklist, badge navigation.');
 } finally {await browser.close();}

@@ -3044,3 +3044,16 @@ button:focus-visible { position:relative; z-index:2; }
  .card-filter-bar { width:100%; }
  .card-filter-bar button { flex:1; padding:8px 9px; min-height:44px; font-size:10px; }
 }
+
+/* Round 8 — help with clear expectations */
+.assistance-review { border:1px solid #dfd5ee; border-radius:13px; padding:22px; background:#f3eefa; margin:20px 0; }
+.assistance-review[hidden] { display:none; }
+.assistance-review .eyebrow { color:#a18ab9; font-size:9px; }
+.assistance-review h3 { font-size:17px; margin:12px 0; color:#7c6499; }
+.assistance-review p,.assistance-review li { font-size:12px; line-height:1.9; color:#9583a6; }
+.assistance-review li+li { margin-top:6px; }
+.assistance-price { display:flex; justify-content:space-between; gap:15px; padding:14px; border-radius:8px; border:1px solid #e3d8f1; background:#ffffffb0; font-size:12px; color:#9b86b1; margin:18px 0; }
+.assistance-price strong { color:#8565a5; }
+.assistance-buttons { display:flex; gap:10px; justify-content:flex-end; }
+.assistance-buttons .primary { font-size:12px; }
+@media(max-width:480px) { .assistance-review { padding:18px 15px; } .assistance-price { font-size:11px; padding:12px; } .assistance-buttons button { flex:1; font-size:11px; padding:10px; } }

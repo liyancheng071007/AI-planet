@@ -159,11 +159,11 @@ function openStage(id) {
   }
   active = id;
   const s=stages[id], done=state.completed.includes(id);
-  $('#dialog-content').innerHTML = `<div class="dialog-header"><span class="eyebrow">LEVEL ${String(id+1).padStart(2,'0')} / ${s.en}</span><button class="close" id="close-dialog" aria-label="关闭关卡">×</button></div><h2 id="dialog-title">${s.name}</h2><p class="lead">${s.concept}</p><div class="task-context"><span class="task-context-icon">${glyph(id)}</span><div><span class="eyebrow">本次探索</span><strong>观察现象 → 动手实验 → 解释你的发现</strong></div><span class="dialog-balance">✦ ${state.coins} 枚算力币</span></div><div class="mission-timing">${state.mode==='45'?'建议 4 分钟 · 完成操作并口头解释':state.mode==='project'?'建议 15 分钟 · 操作、记录并分享':'建议 9 分钟 · 轮换角色并讨论证据'}</div>${done?`<div class="success-panel"><div class="earned-seal"><span>${glyph(id)}</span><i>✓</i></div><span class="eyebrow">MISSION COMPLETE · 探索已完成</span><h3>${s.badge} · 芯片已收集</h3><div class="reward-receipt"><div><small>本关成绩</small><strong>${state.scores[id]} 分</strong></div><div><small>累计芯片</small><strong>${state.completed.length} / 8</strong></div><div><small>当前算力币</small><strong>${state.coins} 枚</strong></div></div>${state.skips.includes(id)?'<p class="assisted-note">本关使用了辅助解题，继续把发现分享给伙伴吧。</p>':''}<p>${s.fact}</p><details class="reflection-details"><summary>查看我的探索记录</summary>${answerView(state.answers[id])}</details><button class="primary" id="next-stage">${id===7?'查看最终成果':'前往下一区域 →'}</button></div>`:`<form id="mission-form">${stageBody(id)}<div class="hint-box" id="hint-box" ${state.hints.includes(id)||state.skips.includes(id)?'':'hidden'}>${s.hint}</div><div id="feedback" role="status" aria-live="polite"></div><div class="mission-actions"><button type="button" class="secondary" id="hint" ${state.hints.includes(id)?'disabled':''}>${state.hints.includes(id)?'提示已解锁':'提示 · 1 币'}</button><button type="button" class="text-button" id="assist" ${state.skips.includes(id)?'disabled':''}>${state.skips.includes(id)?'已使用辅助':'辅助解题 · 3 币'}</button><button class="primary" type="submit">提交修复 ↗</button></div><p class="muted small">辅助解题会填入操作题参考答案；文字作品仍需自己完成，本关最高 60 分。</p></form>`}`;
+  $('#dialog-content').innerHTML = `<div class="dialog-header"><span class="eyebrow">LEVEL ${String(id+1).padStart(2,'0')} / ${s.en}</span><button class="close" id="close-dialog" aria-label="关闭关卡">×</button></div><h2 id="dialog-title">${s.name}</h2><p class="lead">${s.concept}</p><div class="task-context"><span class="task-context-icon">${glyph(id)}</span><div><span class="eyebrow">本次探索</span><strong>观察现象 → 动手实验 → 解释你的发现</strong></div><span class="dialog-balance">✦ ${state.coins} 枚算力币</span></div><div class="mission-timing">${state.mode==='45'?'建议 4 分钟 · 完成操作并口头解释':state.mode==='project'?'建议 15 分钟 · 操作、记录并分享':'建议 9 分钟 · 轮换角色并讨论证据'}</div>${done?`<div class="success-panel"><div class="earned-seal"><span>${glyph(id)}</span><i>✓</i></div><span class="eyebrow">MISSION COMPLETE · 探索已完成</span><h3>${s.badge} · 芯片已收集</h3><div class="reward-receipt"><div><small>本关成绩</small><strong>${state.scores[id]} 分</strong></div><div><small>累计芯片</small><strong>${state.completed.length} / 8</strong></div><div><small>当前算力币</small><strong>${state.coins} 枚</strong></div></div>${state.skips.includes(id)?'<p class="assisted-note">本关使用了辅助解题，继续把发现分享给伙伴吧。</p>':''}<p>${s.fact}</p><details class="reflection-details"><summary>查看我的探索记录</summary>${answerView(state.answers[id])}</details><button class="primary" id="next-stage">${id===7?'查看最终成果':'前往下一区域 →'}</button></div>`:`<form id="mission-form">${stageBody(id)}<div id="assistance-review" class="assistance-review" hidden></div><div class="hint-box" id="hint-box" ${state.hints.includes(id)||state.skips.includes(id)?'':'hidden'}>${s.hint}</div><div id="feedback" role="status" aria-live="polite"></div><div class="mission-actions"><button type="button" class="secondary" id="hint" aria-controls="hint-box" aria-expanded="${state.hints.includes(id)||state.skips.includes(id)}">${state.hints.includes(id)||state.skips.includes(id)?'收起提示':'提示 · 1 币'}</button>${id===7?'<button type="button" class="text-button" id="structure" aria-expanded="false" aria-controls="assistance-review">方案结构 · 免费</button>':`<button type="button" class="text-button" id="assist" ${state.skips.includes(id)?'disabled':''}>${state.skips.includes(id)?'已使用辅助':'辅助解题 · 3 币'}</button>`}<button class="primary" type="submit">提交修复 ↗</button></div><p class="muted small">辅助解题会填入操作题参考答案；文字作品仍需自己完成，本关最高 60 分。</p></form>`}`;
   if (!$('#mission-dialog').open) $('#mission-dialog').showModal();
   if (!done) {
     $('#mission-form').noValidate = true;
-    if (state.skips.includes(id) && !drafts.has(id)) assist(false);
+    if (id!==7 && state.skips.includes(id) && !drafts.has(id)) assist(false);
     restoreDraft();
     if (id===1) updateTraining();
     if (id===3) updateBalance();
@@ -194,6 +194,9 @@ function assist(charge=true) {
   if (charge && !buySkip(state,active)) return toast('算力币不足，辅助解题需要 3 枚。');
   $('#hint-box').hidden=false;
   $('#assist').disabled=true; $('#assist').textContent='已使用辅助';
+  if ($('#assistance-review')) $('#assistance-review').hidden=true;
+  $('#hint').textContent='收起提示';
+  $('#hint').setAttribute('aria-expanded','true');
   if (active===0) $$('[data-card]').forEach(el=>{ const c=cards[Number(el.dataset.card)]; el.value=c.clean?c.actual:'剔除'; });
   if (active===1) { $('#epochs').value=10; $('#train-choice').value='1'; updateTraining(); }
   if (active===2) { samples.forEach((s,i)=>$(`#sample-${i}`).value=s.actual===s.predicted?'0':'1'); $('#confidence').value='1'; }
@@ -203,6 +206,14 @@ function assist(charge=true) {
   if (active===6) $$('[name="ethics"]').forEach(el=>el.checked=[1,3,5].includes(Number(el.value)));
   $$('.needs-review').forEach(el=>el.classList.remove('needs-review'));
   save(); sync(); updateTaskDetails();
+}
+function reviewAssistance() {
+  if (state.coins<3) return toast('算力币不足，辅助解题需要 3 枚。');
+  const panel=$('#assistance-review');
+  panel.hidden=false;
+  panel.innerHTML=`<span class="eyebrow">A LITTLE HELP / 辅助解题</span><h3>先了解，再决定。</h3><p>系统会填写操作题参考答案。文字解释仍由你完成，本关得分将为 <strong>60 分</strong>。</p><div class="assistance-price"><span>当前 ${state.coins} 枚</span><span>− 3 枚</span><strong>剩余 ${state.coins-3} 枚</strong></div><div class="assistance-buttons"><button type="button" class="secondary" id="assist-cancel">我再试试</button><button type="button" class="primary" id="assist-confirm">使用辅助 · 3 币</button></div>`;
+  $('#assist-confirm').focus();
+  panel.scrollIntoView({block:'center'});
 }
 function submit(event) {
   event.preventDefault();
@@ -244,8 +255,20 @@ document.addEventListener('click', e=>{
   const b=e.target.closest('button'); if(!b) return;
   if(b.id==='close-dialog') $('#mission-dialog').close();
   if(b.id==='next-stage') { if(active<7) openStage(active+1); else { $('#mission-dialog').close(); view='passport'; render(); } }
-  if(b.id==='hint') { if(buyHint(state,active)) { save(); sync(); $('#hint-box').hidden=false; updateTaskDetails(); b.disabled=true; b.textContent='提示已解锁'; } else toast('算力币不足，需要 1 枚。'); }
-  if(b.id==='assist') assist();
+  if(b.id==='hint') {
+    if(state.hints.includes(active)||state.skips.includes(active)) {
+      const box=$('#hint-box');box.hidden=!box.hidden;b.textContent=box.hidden?'查看已解锁提示':'收起提示';b.setAttribute('aria-expanded',String(!box.hidden));
+    } else if(buyHint(state,active)) { save(); sync(); $('#hint-box').hidden=false; updateTaskDetails(); b.textContent='收起提示';b.setAttribute('aria-expanded','true'); }
+    else toast('算力币不足，需要 1 枚。');
+  }
+  if(b.id==='assist') reviewAssistance();
+  if(b.id==='assist-confirm') assist();
+  if(b.id==='assist-cancel') { $('#assistance-review').hidden=true;$('#assist').focus(); }
+  if(b.id==='structure') {
+    const panel=$('#assistance-review'); panel.hidden=!panel.hidden;
+    panel.innerHTML='<span class="eyebrow">IDEA CANVAS / 方案结构</span><h3>把大想法拆成五个小问题。</h3><ol><li>谁遇到了什么具体困难？</li><li>系统需要看见或接收什么信息？</li><li>它怎样分析、判断或规划？</li><li>它采取什么行动，失败时谁来帮助？</li><li>你选择的技术具体用在哪一步？</li></ol><p>这份结构提示免费，不影响分数。用自己的例子把它填完整。</p>';
+    b.setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden)panel.scrollIntoView({block:'center'});
+  }
   if(b.id==='generate') generate();
   if(b.id==='download-art') { const art=$('#generation svg'); if(art) { const url=URL.createObjectURL(new Blob([art.outerHTML],{type:'image/svg+xml;charset=utf-8'})); const a=document.createElement('a'); a.href=url; a.download='AI星球-提示词模拟作品.svg'; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000); } }
   if(b.dataset.epochs) { $('#epochs').value=b.dataset.epochs; updateTraining(); updateTaskDetails(); }

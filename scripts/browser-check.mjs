@@ -130,6 +130,7 @@ try {
   assert.equal(await page.locator('#reason').inputValue(),'');
   await page.locator('#hint').click();
   await page.locator('#assist').click();
+  await page.locator('#assist-confirm').click();
   assert.equal(await page.locator('[data-card="29"]').inputValue(),'剔除');
   await page.locator('#reason').fill('模糊数据缺少信息，错标签会误导模型学习。');
   await page.locator('button[type="submit"]').click();
