@@ -2996,3 +2996,33 @@ dialog
  .art-actions { flex-direction:column; gap:8px; }
  .generation { padding:12px; }
 }
+
+/* Round 5 — focus, touch and reading details */
+.skip-link { position:fixed; top:12px; left:15px; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); clip-path:inset(50%); white-space:nowrap; transform:none; }
+.skip-link:focus-visible { width:auto; height:auto; padding:14px 18px; margin:0; overflow:visible; clip:auto; clip-path:none; transform:none; border-radius:8px; box-shadow:0 5px 22px #2c365e33; }
+.close { min-width:44px; min-height:44px; }
+.text-button,.secondary { min-height:44px; }
+.check-row { min-height:46px; cursor:pointer; border-radius:8px; }
+.check-row:hover { background:#f5f3fb; }
+textarea:hover,input:not([type=range]):not([type=checkbox]):hover,select:hover { border-color:#c1b5da; }
+textarea:focus,input:not([type=range]):not([type=checkbox]):focus,select:focus { border-color:#ac95d0; }
+textarea { scroll-margin-top:90px; scroll-margin-bottom:140px; }
+select,input { scroll-margin-top:90px; scroll-margin-bottom:120px; }
+button:focus-visible { position:relative; z-index:2; }
+.dialog-header .close:focus-visible { outline-offset:2px; }
+.badge:focus-visible,.level-card:focus-visible { outline-offset:3px; }
+.answer-record dd { white-space:pre-wrap; }
+@media(max-width:480px) {
+  textarea,input:not([type=range]):not([type=checkbox]) { font-size:16px; }
+  .sample select,.statement select { min-height:44px; font-size:13px; }
+  .data-card select { min-height:44px; }
+  .level-card p { font-size:12px; line-height:1.8; }
+  .nav-button { min-height:44px; }
+  .mission-actions { padding-bottom:max(13px,env(safe-area-inset-bottom)); }
+  .mission-actions button { min-height:44px; }
+  .field-counter { font-size:11px; }
+  .input-label { font-size:14px; }
+  .check-row { font-size:13px; line-height:1.8; }
+  .task-context strong { font-size:11px; }
+}
+@media print { .skip-link { display:none!important; } }

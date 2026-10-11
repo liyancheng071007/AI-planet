@@ -12,6 +12,8 @@ let view = 'map';
 let active = 0;
 let toastTimer;
 let filter = 'all';
+let dialogTrigger = null;
+let dialogTriggerSelector = '';
 const drafts = new Map();
 function toast(message) {
   $('#toast').classList.remove('show');
@@ -102,7 +104,11 @@ function renderTeacher() {
   $('#main').innerHTML = `<section class="guide-cover"><div><span class="eyebrow">TEACHER’S FIELD GUIDE / 课堂探索手册</span><h1>把好奇心，<br>带进下一堂课。</h1><p>每一次判断，都比一个正确答案更重要。<br>陪伴学生观察、实践、讨论，把问题变成发现。</p><button class="primary" data-print>打印教师指南 ↗</button></div><div class="guide-orbit" aria-hidden="true">${scene(7)}<span>LEARN · EXPLORE · REFLECT</span></div></section><section class="classroom-steps"><div><span>01</span><strong>出发前</strong><p>分成小队，轮换四种角色。</p></div><div><span>02</span><strong>探索中</strong><p>先做判断，再说出证据。</p></div><div><span>03</span><strong>归来后</strong><p>展示作品，分享新的问题。</p></div></section><section class="panel"><div class="section-heading"><h2>选择你的课堂节奏</h2><label class="teacher-mode-label" for="teacher-mode">当前节奏 <select id="teacher-mode"><option value="45" ${state.mode==='45'?'selected':''}>45 分钟</option><option value="90" ${state.mode==='90'?'selected':''}>90 分钟</option><option value="project" ${state.mode==='project'?'selected':''}>4 课时</option></select></label></div><div class="teacher-grid"><div><h3>45 分钟 · 精简挑战</h3><p>开场 3 分钟 → 每关约 4 分钟 → 分享 10 分钟。保留全部核心概念，口头复盘。</p></div><div><h3>90 分钟 · 完整探索</h3><p>开场 5 分钟 → 每关约 9 分钟 → 分享 13 分钟。轮换团队角色，并解释每次判断。</p></div><div><h3>4 课时 · 项目实践</h3><p>每课时完成 2 关；第 4 课时安排校园 AI 方案展示与同伴反馈。建议每课时 40 分钟。</p></div></div><p class="muted">节奏设置调整教学提示与任务时长，不设置倒计时、不减少关卡；教师可灵活掌握讨论时间。</p></section><section class="panel"><h2>教师引导问题</h2><ol><li>AI 根据什么做出判断？训练数据能代表现实吗？</li><li>为什么数据更多不一定更好？干净的数据是否也可能缺乏代表性？</li><li>模型很有信心时，我们还需要哪些证据？</li><li>AI 出错时，谁应检查、纠正和承担责任？</li><li>像人一样说话，能证明 AI 有意识吗？我们还缺少什么证据？</li></ol></section><section class="panel"><h2>安全与课堂约定</h2><ul><li>不拍人脸，不输入姓名、联系方式、住址等个人信息。</li><li>本游戏不联网调用模型；模型训练、准确率、生成作品均为教学模拟。</li><li>外部 AI 工具由教师使用合适账号并全程陪同，先确认适龄条件与数据规则。</li><li>尊重不同背景，避免用群体刻板印象解释偏见。</li><li>开放题的自动通关只表示材料填写完整，质量由教师或同伴讨论确认。</li></ul></section><section class="panel"><h2>准备与评价</h2><p>线上：每组一台电脑或平板；不插电：30 张数据卡、标签贴、护照、芯片贴纸、算力币与海报纸。</p><p>每关首次完成获得 1 枚芯片和 2 枚算力币。提示花费 1 枚，辅助解题花费 3 枚；重复查看不再发奖。辅助解题后仍需提交作品或概念回答。</p><p>金牌：全部通关、平均分 ≥85、优质数据 ≥20、算力币 ≥5、协作自评 ≥2；其他全部通关者获得银牌。完成伦理议会另获伦理议员称号。</p><button class="secondary" id="print">打印本页</button></section>`;
 }
 function field(label, id, placeholder = '', min = 8) { return `<label class="input-label" for="${id}">${label}<span class="field-minimum">至少 ${min} 字</span></label><textarea id="${id}" aria-describedby="${id}-counter" minlength="${min}" maxlength="1200" placeholder="${placeholder}" required></textarea><div id="${id}-counter" class="field-counter" data-for="${id}"></div>`; }
-function choice(id, options) { return `<select id="${id}" aria-label="${id.startsWith('sample-')?'样本 '+(Number(id.split('-')[1])+1)+' 的预测判断':'选择你的判断'}" required><option value="">请选择</option>${options.map((o,i)=>`<option value="${i}">${o}</option>`).join('')}</select>`; }
+function choice(id, options) {
+  const labels={'train-choice':'测试准确率不等于100%的原因',confidence:'置信度是否等于正确率',fairness:'平衡数据后还需要做什么',tech:'方案采用的前沿技术'};
+  const label=labels[id] || (id.startsWith('sample-')?`样本 ${Number(id.split('-')[1])+1} 的预测判断`:`第 ${Number(id.split('-')[1])+1} 条陈述的证据判断`);
+  return `<select id="${id}" aria-label="${label}" required><option value="">请选择</option>${options.map((o,i)=>`<option value="${i}">${o}</option>`).join('')}</select>`;
+}
 function stageBody(id) {
   if (id===0) return `<p>检查 30 张图标数据卡。每张卡选择正确类别，或标记为剔除；保留至少 20 张清晰且标签正确的数据。</p><div class="data-workbench"><div><small>处理进度</small><strong id="data-processed">0 / 30</strong></div><div><small>已保留</small><strong id="data-kept">0</strong></div><div><small>已剔除</small><strong id="data-discarded">0</strong></div><button type="button" class="text-button" id="next-card">定位未处理卡片 ↓</button><progress id="data-progress" max="30" value="0" aria-label="数据处理进度"></progress></div><p class="workbench-note">计数仅记录操作进度，正确性将在提交后核对。</p><div class="data-grid">${cards.map(c=>`<label class="data-card"><small>#${String(c.id+1).padStart(2,'0')} · 标签：${c.label}</small><span class="animal ${c.blurry?'blurred':''}" aria-label="${c.blurry?'模糊的': '清晰的'}${c.actual}图标">${c.icon}</span><small>${c.blurry?'图像模糊':'图像清晰'}</small><select data-card="${c.id}" aria-label="第 ${c.id+1} 张数据卡的处理方式"><option value="">未处理</option>${['猫','狗','其他','剔除'].map(t=>`<option>${t}</option>`).join('')}</select></label>`).join('')}</div>${field('剔除理由','reason','描述模糊数据与错标签会怎样影响模型。')}`;
   if (id===1) return `<div class="notice">教学模拟 · 数值不来自真实模型训练</div><label class="input-label" for="epochs">训练轮数：<strong id="epoch-count">5</strong> 轮</label><input type="range" id="epochs" min="1" max="20" value="5"><div class="epoch-presets" aria-label="训练轮数快捷实验"><button type="button" data-epochs="3">试试 3 轮</button><button type="button" data-epochs="10">试试 10 轮</button><button type="button" data-epochs="20">试试 20 轮</button></div><div id="training-result"></div><p class="muted">试试 3、10、20 轮。训练越久，测试表现就一定越好吗？</p>${field('为什么测试准确率不是 100%？','reason','从样本差异、信息不足或模型能力解释。')}${choice('train-choice',['训练准确率高就能保证新题全对','新样本与训练数据有差异，模型也有局限'])}`;
@@ -128,6 +134,11 @@ function restoreDraft() {
 }
 function openStage(id) {
   if (!Number.isInteger(id) || !stages[id]) return;
+  if (!$('#mission-dialog').open) {
+    dialogTrigger = document.activeElement;
+    const kind=['level-card','badge','journey-node','stage-link'].find(c=>dialogTrigger?.classList.contains(c));
+    dialogTriggerSelector=kind?`.${kind}[data-stage="${id}"]`:'.hero .primary';
+  }
   if ($('#mission-dialog').open) rememberDraft();
   $('#dialog-toast').hidden = true;
   const dialog = $('#mission-dialog');
@@ -242,7 +253,14 @@ document.addEventListener('change', e=>{
   if(['mode','map-mode','teacher-mode'].includes(e.target.id)) { state.mode=e.target.value; save(); render(); toast('探索节奏已更新。'); }
   if(e.target.classList.contains('collab')) { state.collaborationItems=$$('.collab').map(el=>el.checked); state.collaboration=state.collaborationItems.filter(Boolean).length; save(); const focused=$$('.collab').indexOf(e.target); renderPassport(); $$('.collab')[focused]?.focus(); }
 });
-$('#mission-dialog').addEventListener('close', rememberDraft);
+$('#mission-dialog').addEventListener('close', () => {
+  rememberDraft();
+  requestAnimationFrame(()=>{
+    if ($('#mission-dialog').open) return;
+    const target=dialogTrigger?.isConnected?dialogTrigger:$(dialogTriggerSelector)||$('#main');
+    target?.focus({preventScroll:true});
+  });
+});
 render();
 if(!storageAvailable) toast('当前浏览器限制本地存储，离开前请导出护照。');
 
