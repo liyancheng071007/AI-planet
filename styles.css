@@ -2961,3 +2961,38 @@ dialog
  .guide-cover { background:white; break-inside:avoid; }
  .teacher-mode-label { display:none; }
 }
+
+/* Round 4 — experiment illustrations */
+.epoch-presets { display:flex; gap:8px; margin:0 0 17px; }
+.epoch-presets button { padding:8px 12px; border:1px solid #ead9c9; background:#fff7ef; border-radius:7px; font-size:11px; color:#ae8861; min-height:35px; }
+.epoch-presets button:hover { background:#f8e5d2; }
+.training-chart { margin:20px 0; border:1px solid var(--line); border-radius:13px; background:white; padding:20px 20px 14px; }
+.chart-heading { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.chart-heading strong { font-size:13px; }
+.chart-heading>span { display:flex; align-items:center; gap:6px; font-size:10px; color:#8d98aa; }
+.chart-heading i { width:6px; height:6px; border-radius:50%; display:inline-block; }
+.chart-heading .train-dot { background:#e2a265; }
+.chart-heading .test-dot { background:#967cc6; margin-left:8px; }
+.training-chart svg { width:100%; height:auto; display:block; margin-top:13px; }
+.training-chart figcaption { font-size:10px; line-height:1.8; color:#939eb2; }
+.confidence-meter { width:100%; height:6px; display:block; margin-top:10px; }
+.confidence-meter::-webkit-meter-bar { border:0; background:#edf1fa; border-radius:5px; }
+.confidence-meter::-webkit-meter-optimum-value { background:#b4c9ef; border-radius:5px; }
+.sample>div { flex:1; }
+.evidence-lines { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-top:12px; }
+.evidence-lines p { margin:0; padding:12px; background:#ffffff99; border-radius:8px; font-size:12px; }
+.evidence-lines span { display:block; color:#76a9ad; font-size:9px; margin-bottom:8px; letter-spacing:1px; }
+.evidence-lines b { color:#527f86; font-weight:600; }
+.prompt-art { display:block; width:100%; height:auto; border-radius:12px; }
+.art-actions { display:flex; align-items:center; justify-content:center; gap:15px; margin-top:17px; }
+.art-actions>span { font-size:10px; color:#a28aae; }
+@media(max-width:480px) {
+ .training-chart { padding:16px 12px 12px; }
+ .chart-heading strong { font-size:11px; }
+ .chart-heading>span { font-size:9px; }
+ .evidence-lines { grid-template-columns:1fr; gap:8px; }
+ .evidence-lines p { padding:10px 12px; }
+ .evidence-lines span { margin-bottom:4px; }
+ .art-actions { flex-direction:column; gap:8px; }
+ .generation { padding:12px; }
+}
