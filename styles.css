@@ -2791,3 +2791,52 @@ dialog
   .reward-receipt strong { font-size:17px; }
 }
 @media print { .badge { display:block!important; break-inside:avoid; } }
+
+/* Round 2 — a consistent visual language for the expedition */
+.ui-icon { width:24px; height:24px; display:block; flex-shrink:0; }
+.stat-symbol .ui-icon { width:25px; height:25px; }
+.metric-note { display:block; font-size:9px; color:#919bb0; margin-top:8px; white-space:nowrap; }
+.stats>div { padding:20px 17px; }
+.next-destination { display:flex; align-items:center; gap:8px; max-width:335px; font-size:10px; color:#b6c4df; background:#b8b8ef0a; border-top:1px solid #b0bde629; padding:13px 0 0; margin-top:23px; }
+.next-destination>span:last-child { margin-left:auto; color:#899bbe; font-size:9px; font-variant-numeric:tabular-nums; }
+.destination-dot { width:5px; height:5px; border-radius:50%; background:#ab92e6; }
+.hero-meta { margin-top:16px; }
+.hero { min-height:398px; }
+.hero-svg { animation:orbital-float 8s ease-in-out infinite alternate; }
+@keyframes orbital-float { from { transform:translateY(-3px); } to { transform:translateY(5px); } }
+.journey-node>span:first-child .ui-icon { width:18px; height:18px; }
+.journey-node>.journey-tooltip { position:absolute; top:-33px; left:50%; width:max-content; height:auto; display:block; padding:6px 9px; transform:translate(-50%,4px); background:#354565; color:white; border:0; border-radius:6px; box-shadow:0 3px 9px #29385b20; font-size:10px; opacity:0; pointer-events:none; transition:.15s; }
+.journey-node:hover>.journey-tooltip,.journey-node:focus-visible>.journey-tooltip { opacity:1; transform:translate(-50%,0); background:#354565; color:white; }
+.journey-node:first-child>.journey-tooltip { left:0; transform:translate(0,4px); }
+.journey-node:last-child>.journey-tooltip { left:auto; right:0; transform:translate(0,4px); }
+.card-tags { display:flex; justify-content:space-between; gap:6px; padding-bottom:15px; font-size:9px; color:#9aa3b4; }
+.card-tags>span:first-child { color:var(--accent-ink); }
+.level-card .scene-svg { transition:transform .3s; }
+.level-card:hover .scene-svg { transform:translateY(-2px) scale(1.035); }
+.card-arrow { transition:transform .2s; }
+.level-card:hover .card-arrow { transform:translateX(3px); }
+.primary:active,.secondary:active { transform:translateY(1px); box-shadow:none; }
+.filters button { transition:color .15s,background .15s,box-shadow .15s; }
+.level-card h3 { letter-spacing:.1px; }
+.badge>span .ui-icon { width:34px; height:34px; margin:auto; }
+.earned-seal .ui-icon { width:40px; height:40px; }
+.task-context-icon .ui-icon { width:23px; height:23px; }
+@media(max-width:1200px) { .metric-note { font-size:8px; } .stats>div { padding:17px 12px; } .stats>div>div { min-width:0; } }
+@media(max-width:480px) {
+  .hero { min-height:465px; padding-bottom:26px; }
+  .next-destination { font-size:9px; max-width:100%; margin-top:19px; padding-top:12px; }
+  .hero-meta { margin-top:20px; max-width:52%; }
+  .space-art { width:165px; height:143px; bottom:-8px; }
+  .hero-actions .primary { min-height:45px; }
+  .metric-note { font-size:8px; white-space:normal; line-height:1.5; }
+  .stats>div { padding:15px 11px; gap:9px; }
+  .stat-symbol { width:32px; height:36px; flex-shrink:0; }
+  .stat-symbol .ui-icon { width:21px; height:21px; }
+  .stats em { margin-left:2px; }
+  .card-tags { font-size:8px; flex-wrap:wrap; }
+  .card-tags>span:last-child { display:none; }
+  .journey-node>span:first-child .ui-icon { width:15px; height:15px; }
+  .journey-tooltip { display:none!important; }
+}
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; } }
+@media print { .hero-svg { animation:none; } }
