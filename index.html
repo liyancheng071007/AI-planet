@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101912">
+  <meta name="description" content="成为AI训练师，探索8个区域，在互动实验中理解数据、训练、推理与AI伦理。">
+  <title>AI星球 · 智能核心修复计划</title>
+  <link rel="icon" href="assets/planet.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳转到任务区域</a>
+  <header class="topbar">
+    <a href="#" class="brand" aria-label="AI星球首页"><span class="brand-icon">✳</span> AI 星球 <span class="brand-sub">PLANET LAB</span></a>
+    <nav aria-label="主导航"><button data-view="map" class="nav-button active">探索星球</button><button data-view="passport" class="nav-button">训练师护照</button><button data-view="teacher" class="nav-button">教师中心 ↗</button></nav>
+    <span class="local-tag"><i></i> 本地探索模式</span>
+  </header>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="mission-label">MISSION / 001</div>
+      <h2>智能核心<br>修复计划<span>。</span></h2>
+      <p class="muted">一场关于 AI 的星际探索</p>
+      <div class="profile"><div class="avatar">✦</div><div><strong id="team-label">星际探索小队</strong><small>见习 AI 训练师</small></div></div>
+      <label class="field-label" for="mode">探索节奏</label>
+      <select id="mode"><option value="45">45 分钟 · 精简挑战</option><option value="90" selected>90 分钟 · 完整探索</option><option value="project">4 课时 · 项目实践</option></select>
+      <div class="sidebar-progress"><div><span>核心修复进度</span><strong id="progress-label">0 / 8</strong></div><progress id="progress" max="8" value="0">0 / 8</progress></div>
+      <div id="stage-list" class="stage-list"></div>
+      <div class="sidebar-note"><span>✧ 探索者须知</span><p>AI 会犯错，也会带来新可能。<br>保持好奇，更要独立思考。</p></div>
+    </aside>
+    <main id="main" tabindex="-1"></main>
+  </div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <dialog id="mission-dialog" aria-labelledby="dialog-title"><div id="dialog-content"></div></dialog>
+  <footer>AI PLANET · 为好奇心而造 <span>不收集个人信息 · 无需账号 · 教学模拟</span></footer>
+  <noscript>请启用 JavaScript 以体验互动关卡。教师说明可在项目 docs/TEACHER_GUIDE.md 中查看。</noscript>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

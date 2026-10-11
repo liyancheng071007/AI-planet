@@ -1,0 +1,14 @@
+{
+  "name": "ai-planet",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI星球：智能核心修复计划 — 面向10—15岁学生的AI科普互动游戏",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "start": "node scripts/serve.mjs",
+    "test": "node --test",
+    "check": "node --check app.js && node --check engine.js && node --check content.js"
+  },
+  "engines": { "node": ">=20" }
+}
