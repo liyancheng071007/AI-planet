@@ -89,6 +89,20 @@ try {
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ai-planet-v1')).coins),5);
   await page.locator('#structure').click();
   assert.equal(await page.locator('#assistance-review').isVisible(),false);
+  const finished=newState();finished.completed=[0,1,2,3,4,5,6,7];finished.scores=Object.fromEntries(finished.completed.map(i=>[i,100]));finished.data=22;finished.collaborationItems=[true,true,false];finished.collaboration=2;finished.team='星际研究所 <AI>';
+  await seed(finished);
+  assert.ok((await page.locator('.hero h1').textContent()).includes('星球已重启'));
+  await page.locator('.nav-button[data-view="passport"]').click();
+  assert.ok((await page.locator('.certificate-panel').textContent()).includes('金牌 AI 训练师'));
+  assert.equal(await page.locator('.completed-chips>span').count(),8);
+  const certificateDownload=page.waitForEvent('download');
+  await page.locator('#download-certificate').click();
+  const certificate=await certificateDownload;
+  assert.equal(certificate.suggestedFilename(),'AI星球-探索纪念证书.svg');
+  const stream=await certificate.createReadStream();let svg='';for await(const chunk of stream)svg+=chunk;
+  assert.ok(svg.includes('&lt;AI&gt;'));
+  assert.ok(!svg.includes('<AI>'));
+  await page.locator('.certificate-panel').screenshot({path:'docs/completion-screenshot.png'});
   assert.deepEqual(errors,[]);
   console.log('Polish QA passed: live task counts, focus shortcut, writing feedback, live wallet, rewards, readable records, prompt checklist, badge navigation.');
 } finally {await browser.close();}
