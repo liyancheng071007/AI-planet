@@ -1,28 +1,28 @@
-<view class="page">
-  <view class="eyebrow">{{stage.en}}</view><view class="title">{{stage.name}}</view><view class="subtitle">{{stage.concept}}</view>
-  <view class="notice">所有模型与作品均为教学模拟。文字题仅检查完整性，内容由教师或同伴评议。</view>
-  <view wx:if="{{error}}" class="notice error">{{error}}</view>
-  <button wx:if="{{!ready}}" bindtap="load" loading="{{busy}}" disabled="{{busy}}">重新连接</button>
-  <view wx:if="{{done}}" class="panel"><view class="eyebrow">MISSION COMPLETE</view><view class="title">✦ 芯片已收集</view><view class="heading">{{stage.badge}} · {{score}}分</view><view class="muted">{{stage.fact}}</view><button class="primary" bindtap="next">{{id===7?'查看修复成果':'前往下一关'}}</button></view>
+<view class="page mission-page">
+  <view class="eyebrow">第 {{id+1}} 关 / 8</view><view class="title">{{stage.name}}</view><view class="subtitle">{{stage.concept}}</view>
+  <button wx:if="{{!ready}}" bindtap="load" loading="{{busy}}" disabled="{{busy}}">重新读取任务</button>
+  <view wx:if="{{pending}}" class="notice">上次操作的保存结果尚未确认。答案已保留，请先确认再继续。<button bindtap="retry" disabled="{{busy}}" loading="{{busy}}">确认上次操作</button></view>
+  <view wx:if="{{done}}" class="panel"><view class="title">✦ 又修复了一块芯片</view><view class="heading">{{stage.badge}} · {{score}}分</view><view class="muted">{{stage.fact}}</view><button class="primary" bindtap="next">{{id===7?'查看我的成果':'继续下一关'}} →</button></view>
   <block wx:elif="{{ready}}">
-    <view class="row"><view class="heading">动手实验</view><view class="badge">余额 {{coins}} 币</view></view>
-    <view wx:if="{{id===5}}" class="panel"><view class="heading">档案 A-07 · 虚构教学资料</view><view class="muted">图书馆有120本纸质书。小蓝只能在室内行走。温室每周三浇水。</view></view>
-    <view wx:if="{{training}}" class="panel"><view class="heading">训练 {{training.train}}% / 测试 {{training.test}}%</view><progress percent="{{training.test}}" activeColor="#9271c6" stroke-width="8"/><view class="muted">{{training.status}}</view></view>
-    <view class="panel">
-      <view wx:for="{{fields}}" wx:key="key" class="field">
+    <view class="step-heading"><view class="row"><text>步骤 {{step+1}} / {{totalSteps}}</text><text class="muted">{{coins}} 币</text></view><progress percent="{{(step+1)*100/totalSteps}}" activeColor="#9271c6" stroke-width="5"/><view class="heading">{{stepTitle}}</view></view>
+    <view wx:if="{{id===5}}" class="notice"><view class="label">原始资料 · 虚构星球档案</view>图书馆有120本纸质书。小蓝只能在室内行走。温室每周三浇水。</view>
+    <view wx:if="{{training&&step===0}}" class="panel"><view class="heading">训练 {{training.train}}% / 测试 {{training.test}}%</view><progress percent="{{training.test}}" activeColor="#9271c6" stroke-width="8"/><view class="muted">{{training.status}} · 教学模拟数值</view></view>
+    <view wx:if="{{visibleFields.length}}" class="panel">
+      <view wx:for="{{visibleFields}}" wx:key="key" id="field-{{item.index}}" class="field {{focusIndex===item.index?'needs-answer':''}}">
         <view class="label">{{item.label}}</view>
-        <block wx:if="{{item.type==='text'}}"><textarea value="{{item.value}}" maxlength="500" disabled="{{busy}}" placeholder="请写下你的想法，不含个人信息" data-index="{{index}}" bindinput="change"/><view class="count">{{item.value.length}} / 500 · 至少{{item.min}}字</view></block>
-        <picker wx:elif="{{item.type==='choice'}}" range="{{item.options}}" value="{{item.value<0?0:item.value}}" disabled="{{busy}}" data-index="{{index}}" bindchange="change"><view class="picker">{{item.value<0?'请选择 ▾':item.options[item.value]}}</view></picker>
-        <block wx:elif="{{item.type==='range'}}"><view class="badge">当前 {{item.value}}</view><slider min="{{item.key==='epochs'?1:0}}" max="{{item.max}}" value="{{item.value}}" disabled="{{busy}}" activeColor="#9271c6" data-index="{{index}}" bindchange="change"/></block>
-        <checkbox-group wx:elif="{{item.type==='checks'}}" data-index="{{index}}" bindchange="change"><label wx:for="{{item.options}}" wx:for-item="option" wx:for-index="optionIndex" wx:key="*this" class="choice"><checkbox value="{{optionIndex}}" checked="{{item.value[0]===optionIndex||item.value[1]===optionIndex||item.value[2]===optionIndex||item.value[3]===optionIndex||item.value[4]===optionIndex||item.value[5]===optionIndex}}" disabled="{{busy}}" color="#8160bd"/><text>{{option}}</text></label></checkbox-group>
-        <checkbox-group wx:elif="{{item.type==='boolean'}}" data-index="{{index}}" bindchange="change"><label class="choice"><checkbox value="yes" checked="{{item.value}}" disabled="{{busy}}" color="#8160bd"/>确认已完成</label></checkbox-group>
+        <block wx:if="{{item.type==='text'}}"><textarea value="{{item.value}}" maxlength="500" disabled="{{busy||pending}}" focus="{{focusIndex===item.index}}" placeholder="写下你的发现，不填个人信息" data-index="{{item.index}}" bindinput="change"/><view class="count">{{item.value.length}}字 · 至少{{item.min}}字</view></block>
+        <radio-group wx:elif="{{item.type==='choice'}}" class="{{id===0?'compact-choices':''}}" data-index="{{item.index}}" bindchange="change"><label wx:for="{{item.choices}}" wx:for-item="option" wx:key="value" class="choice option {{option.checked?'selected':''}}"><radio value="{{option.value}}" checked="{{option.checked}}" disabled="{{busy||pending}}" color="#8160bd"/><text>{{option.label}}</text></label></radio-group>
+        <block wx:elif="{{item.type==='range'}}"><view class="badge">当前 {{item.value}}</view><slider min="{{item.key==='epochs'?1:0}}" max="{{item.max}}" value="{{item.value}}" disabled="{{busy||pending}}" activeColor="#9271c6" data-index="{{item.index}}" bindchange="change"/></block>
+        <checkbox-group wx:elif="{{item.type==='checks'}}" data-index="{{item.index}}" bindchange="change"><label wx:for="{{item.choices}}" wx:for-item="option" wx:key="value" class="choice option {{option.checked?'selected':''}}"><checkbox value="{{option.value}}" checked="{{option.checked}}" disabled="{{busy||pending}}" color="#8160bd"/><text>{{option.label}}</text></label></checkbox-group>
+        <checkbox-group wx:elif="{{item.type==='boolean'}}" data-index="{{item.index}}" bindchange="change"><label class="choice"><checkbox value="yes" checked="{{item.value}}" disabled="{{busy||pending}}" color="#8160bd"/>确认已完成</label></checkbox-group>
       </view>
     </view>
-    <block wx:if="{{id===4}}"><button bindtap="generate" disabled="{{busy}}">生成模拟作品</button><view wx:if="{{art}}" class="art"><view class="character">{{art.helmet?'🧑‍🚀':''}}{{art.cat?'🐈':'🤖'}}</view><view>{{art.mars?'🔴 火星探索':'✨ 宇宙漫游'}}</view><view class="muted">规则拼贴 · 非真实生成式AI</view><view class="muted">{{generatedPrompt}}</view></view><view wx:if="{{art&&fields[0].value!==generatedPrompt}}" class="notice">提示词已修改，请重新生成。</view></block>
-    <view wx:if="{{showHint}}" class="notice">{{stage.hint}}</view>
-    <button bindtap="hint" disabled="{{busy}}">{{hint?'查看 / 收起提示':'提示 · 1币'}}</button>
-    <button bindtap="assist" disabled="{{busy}}">{{id===7?'方案结构 · 免费':assisted?'重新填写已购辅助答案':'辅助解题 · 3币'}}</button>
-    <button class="primary" bindtap="submit" loading="{{busy}}" disabled="{{busy}}">提交修复</button>
+    <view wx:if="{{id===4&&step===1&&art}}" class="art"><view class="character">{{art.helmet?'🧑‍🚀':''}}{{art.cat?'🐈':'🤖'}}</view><view>{{art.mars?'🔴 火星探索':'✨ 宇宙漫游'}}</view><view class="muted">{{generatedPrompt}}</view><view class="muted">本地规则拼贴，不是真实生成式AI</view></view>
     <view wx:if="{{error}}" class="notice error">{{error}}</view>
+    <view class="step-actions"><button wx:if="{{step>0}}" class="quiet" bindtap="previous" disabled="{{busy||pending}}">上一步</button><button class="primary" bindtap="advance" loading="{{busy}}" disabled="{{busy||pending}}">{{lastStep?'提交，领取芯片':id===4?'生成并看看作品':'下一步'}} →</button></view>
+    <button class="quiet" bindtap="help">{{helpOpen?'收起帮助 ↑':'需要帮助？'}}</button>
+    <view wx:if="{{helpOpen}}" class="panel"><view class="muted">{{id===7?'这关的方案提示免费。':'提示帮你理解题意；辅助会填写参考选择，文字仍需自己写。'}}</view><button bindtap="hint" disabled="{{busy||pending||(!hint&&coins<1&&id!==7)}}">{{id===7?'查看方案提示 · 免费':hint?'查看 / 收起已有提示':'查看提示 · 1币'}}</button><button wx:if="{{id!==7}}" bindtap="assist" disabled="{{busy||pending||(!assisted&&coins<3)}}">{{assisted?'重新填入已购辅助':'使用辅助 · 3币，本关60分'}}</button><view wx:if="{{showHint}}" class="notice">{{stage.hint}}</view><view wx:if="{{coins<1&&id!==7&&!hint}}" class="muted">算力币不足，可以先和同伴或老师讨论。</view></view>
   </block>
+  <view wx:if="{{error&&(!ready||done)}}" class="notice error">{{error}}</view>
+  <view class="muted footnote">返回后可继续当前步骤；退出小程序会清空未提交草稿。文字内容请与同伴或教师共同评议。</view>
 </view>

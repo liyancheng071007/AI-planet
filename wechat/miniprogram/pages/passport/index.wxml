@@ -1,13 +1,14 @@
-<view class="page"><view class="eyebrow">EXPLORER PASSPORT</view><view class="title">我的训练师护照</view>
+<view class="page"><view class="eyebrow">我的探索记录</view><view class="title">每一步，都算数。</view>
   <view wx:if="{{error}}" class="notice error">{{error}}</view>
+  <view wx:if="{{pending}}" class="notice">有一次操作等待确认，确认后再继续。<button bindtap="retry" disabled="{{busy}}" loading="{{busy}}">确认上次操作</button></view>
   <button wx:if="{{!ready}}" bindtap="load" disabled="{{busy}}" loading="{{busy}}">重新读取</button>
   <block wx:if="{{ready}}">
-    <view class="hero"><view class="title">{{award}}</view><view class="muted">已收集 {{state.completed.length}} / 8 块芯片</view><view class="planet">{{state.completed.length===8?'🏆':'🪐'}}</view></view>
-    <view class="panel"><view class="label">小队代号（仅存本机，不填真实姓名）</view><input value="{{team}}" maxlength="24" bindinput="team" disabled="{{busy}}"/><view class="field"><view class="label">课堂节奏</view><picker range="{{modes}}" value="{{modeIndex}}" bindchange="mode" disabled="{{busy}}"><view class="picker">{{modes[modeIndex]}} ▾</view></picker></view>
-      <view class="label">团队协作自评</view><checkbox-group bindchange="collaboration"><label wx:for="{{collaborationLabels}}" wx:key="*this" class="choice"><checkbox value="{{index}}" checked="{{state.collaborationItems[index]}}" disabled="{{busy}}" color="#8160bd"/>{{item}}</label></checkbox-group><button class="primary" bindtap="save" loading="{{busy}}" disabled="{{busy}}">保存护照</button>
-    </view>
-    <view class="notice">金牌条件：完成8关、平均分≥85、数据卡≥20、算力币≥5、协作自评≥2。文字作品仅在当前设备保留。</view>
-    <view wx:for="{{records}}" wx:key="id" class="panel"><view class="row"><view class="heading">{{item.name}}</view><text class="badge">{{item.done?item.score+'分':'待探索'}}</text></view><view class="muted">{{item.badge}}</view><view wx:if="{{item.work}}" class="work">{{item.work}}</view></view>
-    <button bindtap="export" disabled="{{busy}}">复制护照记录</button><button bindtap="reset" disabled="{{busy}}">重新开始</button><button class="danger" bindtap="remove" disabled="{{busy}}">删除云端存档与本机作品</button>
+    <view class="hero"><view class="muted">{{team}}</view><view class="heading">{{award}}</view><view class="muted">已收集 {{state.completed.length}} / 8 块芯片</view><button wx:if="{{current<8}}" class="primary" bindtap="continue">继续第{{current+1}}关 →</button></view>
+    <view wx:if="{{!state.completed.length}}" class="panel"><view class="heading">你的第一枚徽章，在前方等你。</view><view class="muted">完成第一关后，这里会留下成绩和你的发现。</view></view>
+    <block wx:for="{{records}}" wx:key="id"><view wx:if="{{item.done}}" class="panel"><button class="record-heading" data-id="{{item.id}}" bindtap="record"><view><view class="heading">{{item.badge}}</view><view class="muted">{{item.name}} · {{item.score}}分</view></view><text>{{recordOpen===item.id?'收起 ↑':'查看 ↓'}}</text></button><view wx:if="{{recordOpen===item.id}}"><view wx:for="{{item.lines}}" wx:for-item="line" wx:key="label" class="separated"><view class="label">{{line.label}}</view><view class="work">{{line.text}}</view></view><view wx:if="{{!item.lines.length}}" class="muted">本关成绩已记录。文字作品只在填写它的设备上保留。</view></view></view></block>
+    <button class="quiet" bindtap="settings">{{settingsOpen?'收起设置 ↑':'小队与课堂设置 ↓'}}</button>
+    <view wx:if="{{settingsOpen}}" class="panel"><view class="label">小队代号（不填真实姓名）</view><input value="{{team}}" maxlength="24" bindinput="team" disabled="{{busy||pending}}"/><view class="field"><view class="label">课堂节奏</view><picker range="{{modes}}" value="{{modeIndex}}" bindchange="mode" disabled="{{busy||pending}}"><view class="picker">{{modes[modeIndex]}} ▾</view></picker></view><view class="label">协作自评</view><checkbox-group bindchange="collaboration"><label wx:for="{{collaborationLabels}}" wx:key="*this" class="choice"><checkbox value="{{index}}" checked="{{state.collaborationItems[index]}}" disabled="{{busy||pending}}" color="#8160bd"/>{{item}}</label></checkbox-group><button class="primary" bindtap="save" disabled="{{busy||pending}}" loading="{{busy}}">保存设置</button><view class="muted">金牌条件：完成8关、平均分≥85、数据卡≥20、算力币≥5、协作自评≥2。</view></view>
+    <button class="quiet" bindtap="management">{{manageOpen?'收起记录管理 ↑':'导出与记录管理 ↓'}}</button>
+    <view wx:if="{{manageOpen}}" class="panel"><view class="muted">重新开始或删除前，建议先复制记录保存。</view><button bindtap="export" disabled="{{busy||pending}}">复制完整记录</button><button bindtap="reset" disabled="{{busy||pending}}">重新开始</button><button class="danger" bindtap="remove" disabled="{{busy||pending}}">{{demo?'删除本机体验记录':'删除云端存档与本机作品'}}</button></view>
   </block>
 </view>

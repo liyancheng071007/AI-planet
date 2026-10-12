@@ -2,6 +2,7 @@
   <view class="hero"><view class="heading">10—15岁 · 单人或2—4人小队</view><view class="muted">数据官 / 训练师 / 测试员 / 伦理官，轮换角色。小队共用一台设备；当前版本不支持多人实时协作。</view></view>
   <view class="panel"><view class="heading">01 观察与讨论</view><view class="muted">AI根据什么判断？先提出猜想，再动手实验。</view><view class="heading">02 验证与修复</view><view class="muted">比较数据质量、训练轮数和分组表现，记录错误与修复方法。</view><view class="heading">03 分享与复盘</view><view class="muted">系统只检查填写完整性。请同伴或教师评价文字论证、使用公约和校园方案。</view></view>
   <view class="panel"><view class="heading">课堂节奏</view><view class="muted">45分钟：开场3分钟 + 每关约4分钟 + 总结10分钟。<br/>90分钟：开场5分钟 + 每关约9分钟 + 分享13分钟。<br/>4课时：每课时约40分钟，完成2关。</view></view>
-  <view wx:for="{{stages}}" wx:key="name" class="panel"><view class="heading">{{index+1}}. {{item.name}}</view><view class="muted">{{item.fact}}</view></view>
+  <button class="quiet" bindtap="toggle">{{expanded?'收起逐关知识点 ↑':'查看逐关知识点 ↓'}}</button>
+  <block wx:if="{{expanded}}"><view wx:for="{{stages}}" wx:key="name" class="panel"><view class="heading">{{index+1}}. {{item.name}}</view><view class="muted">{{item.fact}}</view></view></block>
   <view class="notice">不拍人脸、不填真实姓名、不输入个人信息。云端只保存身份关联的进度和结构化成绩。文字在提交时用于完整性校验，不写入云数据库；作品与小队代号仅存本机。数据删除入口在护照页。</view>
 </view>

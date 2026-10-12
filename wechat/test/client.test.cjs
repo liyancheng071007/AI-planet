@@ -50,3 +50,24 @@ test('conflict refreshes state and unlocks a fresh retry',async()=>{
  await api.get();await assert.rejects(api.mutate('hint',{stage:0}));
  assert.equal((await api.mutate('hint',{stage:0})).state.coins,3);
 });
+test('demo validation failure allows correction instead of locking all future actions',async()=>{
+ const api=client(true,()=>{throw Error('must stay local');});
+ await api.get();await assert.rejects(api.mutate('submit',{stage:0,answer:{}}));
+ assert.equal(api.hasPending(),false);
+ assert.equal((await api.mutate('hint',{stage:0})).state.coins,4);
+});
+test('explicit retry recovers original payload even if the form has changed',async()=>{
+ const sent=[];let failure=true;
+ const api=client(false,async({data})=>{
+  if(data.action==='get')return {result:{ok:true,revision:0,state:{coins:5}}};
+  sent.push(data);
+  if(failure){failure=false;throw Error('lost response');}
+  return {result:{ok:true,revision:1,state:{coins:7}}};
+ });
+ await api.get();await assert.rejects(api.mutate('submit',{stage:0,answer:{reason:'original writing'}}));
+ assert.equal(api.hasPending(),true);
+ await assert.rejects(api.mutate('submit',{stage:0,answer:{reason:'changed writing'}}));
+ await api.retryPending();assert.equal(api.hasPending(),false);
+ assert.equal(sent[0].requestId,sent[1].requestId);
+ assert.equal(api.local().works[0].reason,'original writing');
+});

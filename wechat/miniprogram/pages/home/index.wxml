@@ -1,13 +1,15 @@
 <view class="page">
-  <view class="eyebrow">PLANET LAB / AI星球</view>
-  <view wx:if="{{demo}}" class="notice">本机演示模式 · 未连接微信云端，进度仅保存在本设备。</view>
-  <view class="hero"><view class="eyebrow">智能核心修复计划</view><view class="title">下一站，<br/>和 AI 一起探索未来。</view><view class="muted">收集8块芯片，学习数据、训练、推理与改进。</view><view class="planet">🪐</view></view>
+  <view class="eyebrow">AI星球 · 智能核心修复计划</view>
+  <view class="title">今天，从一个小发现开始。</view>
+  <view wx:if="{{demo}}" class="mode-note">本机体验版 · 进度保存在当前设备</view>
   <view wx:if="{{error}}" class="notice error">{{error}}</view>
-  <button wx:if="{{!ready}}" bindtap="load" loading="{{loading}}" disabled="{{loading}}">{{loading?'读取存档中':'重试连接'}}</button>
+  <button wx:if="{{!ready}}" bindtap="load" loading="{{loading}}" disabled="{{loading}}">{{loading?'正在读取进度':'重新连接'}}</button>
   <block wx:if="{{ready}}">
-    <view class="stats"><view class="stat"><view class="muted">核心芯片</view><view class="value">{{completed}} / 8</view></view><view class="stat"><view class="muted">算力币</view><view class="value">{{coins}}</view></view></view>
-    <view class="heading">选择你的下一场冒险</view>
-    <view class="grid"><view wx:for="{{items}}" wx:key="id" class="tile {{item.color}}" data-id="{{item.id}}" bindtap="open"><view class="row"><text class="eyebrow">SECTOR {{item.number}}</text><text class="badge">{{item.done?'已修复':item.unlocked?'可挑战':'待解锁'}}</text></view><view class="icon">{{item.icon}}</view><view class="heading">{{item.short}}</view><view class="muted">{{item.desc}}</view></view></view>
+    <view class="hero"><view class="muted">{{completed===8?'旅程已完成':completed===0?'你的第一站':'接着上次的探索'}}</view><view class="heading">{{currentName}}</view><view class="muted">{{completed===8?'八块芯片已集齐，去看看你的成长记录。':'选答案、做实验，再说说你的发现。每次只完成一小步。'}}</view><button class="primary" bindtap="continue">{{completed===8?'查看我的成果':completed===0?'开始第一关':'继续第'+(current+1)+'关'}} →</button></view>
+    <view class="panel"><view class="row"><text>已修复 {{completed}} / 8</text><text class="badge">{{coins}} 枚算力币</text></view><progress percent="{{completed*12.5}}" activeColor="#9271c6" stroke-width="6"/><view class="muted">遇到难题时，可用算力币查看提示。通关进度自动保存。</view></view>
+    <view wx:if="{{completed===0}}" class="panel"><view class="heading">第一次玩？记住这三步</view><view class="quick-step"><text>1</text>跟随每一步说明完成操作</view><view class="quick-step"><text>2</text>卡住时点「需要帮助」</view><view class="quick-step"><text>3</text>通关领芯片，继续下一站</view></view>
+    <button class="quiet" bindtap="toggle">{{expanded?'收起探索路线 ↑':'看看全部8关 ↓'}}</button>
+    <view wx:if="{{expanded}}" class="panel"><button wx:for="{{items}}" wx:key="id" class="route-row" data-id="{{item.id}}" bindtap="open"><text>{{item.number}}　{{item.short}}</text><text class="badge">{{item.done?'已完成':item.id===current?'正在探索':'待解锁'}} →</text></button></view>
   </block>
-  <view class="notice">不输入姓名、人脸、电话或其他个人信息。AI会犯错，保持核实与思考。</view>
+  <view class="muted footnote">不填真实姓名或个人信息。这里的AI实验均为教学模拟。</view>
 </view>

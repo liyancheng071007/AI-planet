@@ -32,3 +32,26 @@ textarea { height:190rpx; line-height:1.6; }
 .art .character { font-size:100rpx; }.planet { font-size:76rpx; text-align:right; }
 .separated { border-bottom:2rpx solid #eeeaf6; padding:18rpx 0; }
 .work { white-space:pre-wrap; line-height:1.7; font-size:25rpx; }
+
+/* Guided journey: one primary action, secondary tools disclosed on demand. */
+.mode-note { color:#777087; font-size:23rpx; margin:18rpx 0; }
+.hero .primary { background:#d7c8f1; color:#35234f; margin-bottom:0; }
+.hero .heading { font-size:38rpx; line-height:1.5; }
+.quick-step { display:flex; align-items:center; gap:18rpx; padding:15rpx 0; color:#56617b; }
+.quick-step text { width:42rpx; height:42rpx; border-radius:50%; background:#eee8fa; text-align:center; color:#7456b7; }
+.quiet { background:transparent; color:#77628e; font-size:26rpx; }
+.route-row { display:flex; align-items:center; justify-content:space-between; text-align:left; margin:0; background:white; border-radius:0; border-bottom:2rpx solid #f0edf6; }
+.route-row:last-child { border-bottom:0; }
+.step-heading { margin:30rpx 0; }
+progress { margin:22rpx 0; }
+.option { border:2rpx solid #e6e1ef; border-radius:18rpx; padding:18rpx; margin:12rpx 0; }
+.option.selected { background:#f0eafb; border-color:#a88bce; }
+.compact-choices { display:grid; grid-template-columns:1fr 1fr; gap:10rpx; }
+.compact-choices .choice { margin:0; font-size:26rpx; padding:16rpx 12rpx; }
+.step-actions { display:flex; align-items:center; gap:16rpx; }
+.step-actions .primary { flex:1; }
+.step-actions .quiet { flex:0 0 150rpx; }
+.needs-answer { border-left:5rpx solid #c57c61; padding-left:16rpx; }
+.footnote { font-size:22rpx; padding:20rpx 0; }
+.record-heading { width:100%; display:flex; align-items:center; justify-content:space-between; text-align:left; background:transparent; line-height:1.5; padding:0; margin:0; }
+.record-heading>text { flex-shrink:0; font-size:23rpx; color:#806592; }

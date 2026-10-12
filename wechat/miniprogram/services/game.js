@@ -37,7 +37,7 @@ async function mutate(action,payload) {
     if (!snapshot) await get();
     const signature = JSON.stringify({action,payload});
     // Retry an ambiguous network failure with exactly the same request ID and revision.
-    if (pending && pending.signature !== signature) throw new Error('上次请求结果尚未确认，请先重试原操作，成功后再进行其他操作。');
+    if (pending && pending.signature !== signature) throw new Error('上次操作结果尚未确认，请点「确认上次操作」后继续。');
     if (!pending) pending = {signature,event:{action,payload,requestId:requestId(),expectedRevision:snapshot.revision}};
     const result = await invoke(pending.event);
     if (!result || !result.ok) {
@@ -47,9 +47,19 @@ async function mutate(action,payload) {
     }
     pending = null;
     snapshot = result.deleted ? null : result;
+    try {
+      if(action==='submit')saveWork(payload.stage,payload.answer);
+      if(action==='reset'||action==='delete')clearLocal();
+    } catch { result.localWarning='成绩已保存，但本机作品存储失败，请检查设备存储空间。'; }
     return result;
+  } catch(error) {
+    // Local validation/storage errors are definitive, not ambiguous network failures.
+    if(config.demo)pending=null;
+    throw error;
   } finally { busy = false; }
 }
+async function retryPending(){if(!pending)return get();const {action,payload}=pending.event;return mutate(action,payload);}
+function hasPending(){return pending!==null;}
 function saveWork(id,answer) { const data=local(); data.works[id]=answer; saveLocal(data); }
 function clearLocal() { wx.removeStorageSync(LOCAL_KEY); Object.keys(drafts).forEach(k=>delete drafts[k]); }
-module.exports = { get, mutate, local, saveLocal, saveWork, clearLocal, drafts, demo:config.demo };
+module.exports = { get, mutate, retryPending, hasPending, local, saveLocal, saveWork, clearLocal, drafts, demo:config.demo };
