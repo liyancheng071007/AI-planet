@@ -35,6 +35,8 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm build
+          pnpm validate:levels
+          pnpm test
           mkdir -p ../_site/attention-highlight
           cp -R apps/web/dist/. ../_site/attention-highlight/
       - uses: actions/upload-pages-artifact@v4
