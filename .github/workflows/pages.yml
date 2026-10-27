@@ -27,6 +27,16 @@ jobs:
           mkdir -p _site/assets
           cp index.html app.js engine.js content.js visuals.js styles.css _site/
           cp assets/planet.svg _site/assets/
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - name: Build attention game
+        working-directory: attention-highlight
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+          mkdir -p ../_site/attention-highlight
+          cp -R apps/web/dist/. ../_site/attention-highlight/
       - uses: actions/upload-pages-artifact@v4
         with:
           path: _site

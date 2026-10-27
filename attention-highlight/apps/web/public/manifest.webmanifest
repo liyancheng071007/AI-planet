@@ -1,0 +1,20 @@
+{
+  "name": "注意力高亮",
+  "short_name": "注意力高亮",
+  "description": "猜一猜 AI 读一句话时，眼睛落在哪几个词上",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f6f4ee",
+  "theme_color": "#f59e0b",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

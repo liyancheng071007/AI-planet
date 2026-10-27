@@ -1,0 +1,13 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+allowBuilds:
+  esbuild: true
+
+# pnpm 10+ 的配置项写在 pnpm-workspace.yaml；.npmrc 里的 pnpm 专属开关在 pnpm 11 不再生效。
+# hoisted：本机 Windows 上 pnpm 默认的目录联接（junction）不会被 Node 的 realpath 展开，
+# 导致 ajv 这类 CJS 包找不到自己的依赖（Cannot find module 'fast-deep-equal'）。
+# 改成 npm 式扁平 node_modules 后解析链正常；不影响依赖版本与 lockfile。
+nodeLinker: hoisted
+

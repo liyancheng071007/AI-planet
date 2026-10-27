@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="注意力高亮">
+  <rect width="512" height="512" rx="96" fill="#f6f4ee"/>
+  <circle cx="256" cy="256" r="132" fill="none" stroke="#1f2937" stroke-width="20"/>
+  <circle cx="256" cy="256" r="52" fill="#f59e0b"/>
+  <rect x="212" y="96" width="88" height="26" rx="13" fill="#3b82f6"/>
+  <rect x="212" y="390" width="88" height="26" rx="13" fill="#3b82f6"/>
+  <rect x="96" y="212" width="26" height="88" rx="13" fill="#3b82f6"/>
+  <rect x="390" y="212" width="26" height="88" rx="13" fill="#3b82f6"/>
+</svg>
